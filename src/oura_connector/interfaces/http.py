@@ -37,8 +37,11 @@ def create_app(service: Service) -> FastAPI:
         if request.url.path != "/health":
             supplied = request.headers.get("authorization", "")
             if not secrets.compare_digest(supplied.encode(), f"Bearer {bearer}".encode()):
-                return JSONResponse({"error": "Bearer authentication required"}, status_code=401,
-                                    headers={"WWW-Authenticate": "Bearer", "Cache-Control": "no-store"})
+                return JSONResponse(
+                    {"error": "Bearer authentication required"},
+                    status_code=401,
+                    headers={"WWW-Authenticate": "Bearer", "Cache-Control": "no-store"},
+                )
         response = await call_next(request)
         response.headers["Cache-Control"] = "no-store"
         return response
@@ -58,7 +61,9 @@ def create_app(service: Service) -> FastAPI:
 
     @app.exception_handler(RequestValidationError)
     async def invalid_shape(_: Request, exc: RequestValidationError) -> JSONResponse:
-        return JSONResponse({"error": {"code": "invalid_request", "message": "Invalid query parameters"}}, status_code=422)
+        return JSONResponse(
+            {"error": {"code": "invalid_request", "message": "Invalid query parameters"}}, status_code=422
+        )
 
     @app.exception_handler(TimeoutError)
     async def timeout(_: Request, exc: TimeoutError) -> JSONResponse:
@@ -77,13 +82,15 @@ def create_app(service: Service) -> FastAPI:
         return service.resources(resource)
 
     @app.get("/days/{date}")
-    async def day(date: str, include: Annotated[list[str] | None, Query()] = None,
-                  format: Format = "compact") -> JsonObject:
+    async def day(
+        date: str, include: Annotated[list[str] | None, Query()] = None, format: Format = "compact"
+    ) -> JsonObject:
         return await service.get_day(date, include, format)
 
     @app.get("/days")
-    async def days(start_date: str, end_date: str, include: Annotated[list[str] | None, Query()] = None,
-                   format: Format = "compact") -> JsonObject:
+    async def days(
+        start_date: str, end_date: str, include: Annotated[list[str] | None, Query()] = None, format: Format = "compact"
+    ) -> JsonObject:
         return await service.get_days(start_date, end_date, include, format)
 
     @app.get("/records/{resource}/{record_id}")
@@ -91,11 +98,18 @@ def create_app(service: Service) -> FastAPI:
         return await service.get_record(resource, record_id, format)
 
     @app.get("/records/{resource}")
-    async def records(resource: str, start_date: str | None = None, end_date: str | None = None,
-                      start_datetime: str | None = None, end_datetime: str | None = None,
-                      cursor: str | None = None, page_budget: int | None = None,
-                      format: Format = "compact") -> JsonObject:
-        return await service.get_records(resource, start_date, end_date, start_datetime, end_datetime,
-                                         cursor, page_budget, format)
+    async def records(
+        resource: str,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        start_datetime: str | None = None,
+        end_datetime: str | None = None,
+        cursor: str | None = None,
+        page_budget: int | None = None,
+        format: Format = "compact",
+    ) -> JsonObject:
+        return await service.get_records(
+            resource, start_date, end_date, start_datetime, end_datetime, cursor, page_budget, format
+        )
 
     return app

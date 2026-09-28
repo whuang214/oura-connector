@@ -1,8 +1,0 @@
-{
-  "data": [
-    {"id": "fixture-readiness-01", "day": "2026-07-08", "score": 74, "temperature_deviation": -0.2, "timestamp": "2026-07-08T07:00:00+00:00"},
-    {"id": "fixture-readiness-02", "day": "2026-07-09", "score": 81, "temperature_deviation": 0.1, "timestamp": "2026-07-09T07:00:00+00:00"},
-    {"id": "fixture-readiness-03", "day": "2026-07-10", "score": 77, "temperature_deviation": 0.3, "timestamp": "2026-07-10T07:00:00+00:00"}
-  ],
-  "next_token": null
-}

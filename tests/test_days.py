@@ -25,8 +25,10 @@ async def test_seven_days_fetch_each_resource_once_and_keep_score_separate() -> 
         calls.append(name)
         rows = [{"day": "2026-09-27", "score": 80}]
         if name == "sleep":
-            rows = [{"day": "2026-09-27", "id": "night", "type": "long_sleep", "total_sleep_duration": 27000},
-                    {"day": "2026-09-27", "id": "nap", "type": "late_nap", "total_sleep_duration": 1800}]
+            rows = [
+                {"day": "2026-09-27", "id": "night", "type": "long_sleep", "total_sleep_duration": 27000},
+                {"day": "2026-09-27", "id": "nap", "type": "late_nap", "total_sleep_duration": 1800},
+            ]
         return httpx.Response(200, json={"data": rows})
 
     service, http = make_service(handler)
@@ -44,11 +46,20 @@ async def test_seven_days_fetch_each_resource_once_and_keep_score_separate() -> 
 
 @pytest.mark.anyio
 async def test_sleep_filtering_nulls_unknown_types_and_source_mode() -> None:
-    rows = [{"id": "a", "day": "2026-09-27", "type": "sleep", "total_sleep_duration": None,
-             "time_in_bed": 8000, "average_hrv": 0, "heart_rate": {"items": [1, 2]}},
-            {"id": "b", "day": "2026-09-27", "type": "rest"},
-            {"id": "c", "day": "2026-09-27", "type": "deleted"},
-            {"id": "d", "day": "2026-09-27", "type": "future_type"}]
+    rows = [
+        {
+            "id": "a",
+            "day": "2026-09-27",
+            "type": "sleep",
+            "total_sleep_duration": None,
+            "time_in_bed": 8000,
+            "average_hrv": 0,
+            "heart_rate": {"items": [1, 2]},
+        },
+        {"id": "b", "day": "2026-09-27", "type": "rest"},
+        {"id": "c", "day": "2026-09-27", "type": "deleted"},
+        {"id": "d", "day": "2026-09-27", "type": "future_type"},
+    ]
     service, http = make_service(lambda _: httpx.Response(200, json={"data": rows}))
     async with http:
         compact = await service.get_records("sleep", "2026-09-27", "2026-09-27")
@@ -80,8 +91,10 @@ async def test_one_failed_sleep_source_does_not_erase_periods() -> None:
 async def test_missing_day_in_partial_collection_is_not_empty_and_cursor_resumes() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         more = "next_token" not in request.url.params
-        return httpx.Response(200, json={"data": [] if more else [{"day": "2026-09-27", "score": 70}],
-                                         "next_token": "next" if more else None})
+        return httpx.Response(
+            200,
+            json={"data": [] if more else [{"day": "2026-09-27", "score": 70}], "next_token": "next" if more else None},
+        )
 
     service, http = make_service(handler, max_pages=1)
     async with http:
@@ -93,8 +106,13 @@ async def test_missing_day_in_partial_collection_is_not_empty_and_cursor_resumes
 
 
 def test_field_selection_preserves_identity_and_offsets() -> None:
-    row = {"id": "x", "day": "2026-09-27", "bedtime_start": "2026-09-26T22:00:00-04:00",
-           "average_hrv": None, "efficiency": 81}
+    row = {
+        "id": "x",
+        "day": "2026-09-27",
+        "bedtime_start": "2026-09-26T22:00:00-04:00",
+        "average_hrv": None,
+        "efficiency": 81,
+    }
     formatted = format_record("sleep", row, "compact", ("average_hrv",))
     assert formatted["bedtime_start"] == row["bedtime_start"]
     assert formatted["average_hrv_ms"] is None

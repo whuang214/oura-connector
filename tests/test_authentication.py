@@ -17,10 +17,38 @@ from oura_connector.auth import (
     OAuthSessionStore,
     TokenStore,
     code_challenge_for,
+    write_protected_json,
 )
 from oura_connector.auth_models import OAuthTokenSet
 from oura_connector.config import Settings
 from oura_connector.errors import AuthenticationError, ConfigurationError, TokenStoreError
+
+
+def test_corrupt_naive_timestamp_is_rejected_as_a_store_error(tmp_path: Path) -> None:
+    path = tmp_path / "tokens.json"
+    write_protected_json(
+        path, {"access_token": "synthetic", "expires_at": "2026-09-28T12:00:00", "obtained_at": "2026-09-27T12:00:00"}
+    )
+    with pytest.raises(TokenStoreError):
+        TokenStore(path).load()
+
+
+@pytest.mark.anyio
+async def test_invalid_expiry_is_sanitized(tmp_path: Path) -> None:
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda _: httpx.Response(
+                200,
+                json={
+                    "access_token": "synthetic",
+                    "refresh_token": "synthetic",
+                    "expires_in": 10**100,
+                },
+            )
+        )
+    ) as http:
+        with pytest.raises(AuthenticationError, match="expiry"):
+            await OAuthClient(_oauth_settings(tmp_path), http_client=http).exchange_authorization_code("synthetic")
 
 
 def _oauth_settings(tmp_path: Path) -> Settings:
@@ -384,7 +412,13 @@ async def test_authorization_allows_user_to_decline_optional_scopes(tmp_path: Pa
         token = await oauth.exchange_authorization_code("valid-code")
     assert token.scope == "extapi:daily"
     assert oauth.missing_requested_scopes(token.scope) == (
-        "email", "heartrate", "personal", "session", "spo2", "tag", "workout"
+        "email",
+        "heartrate",
+        "personal",
+        "session",
+        "spo2",
+        "tag",
+        "workout",
     )
 
 

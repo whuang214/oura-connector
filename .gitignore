@@ -17,3 +17,8 @@ private-results/
 *.log
 tokens.json
 tokens.json.*
+
+.env.*
+!.env.example
+credentials.json
+credentials.json.*

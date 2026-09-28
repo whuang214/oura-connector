@@ -19,14 +19,23 @@ from oura_connector.service import Service
 @pytest.mark.anyio
 async def test_http_and_mcp_share_data_and_errors(tmp_path: Path) -> None:
     settings = Settings(access_token="synthetic", http_token="a" * 32, token_file=tmp_path / "tokens.json")
-    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda _: httpx.Response(
-        200, json={"data": [{"id": "one", "day": "2026-09-27", "score": 82}]}))) as upstream:
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda _: httpx.Response(200, json={"data": [{"id": "one", "day": "2026-09-27", "score": 82}]})
+        )
+    ) as upstream:
         service = Service(settings, OuraClient(settings, http=upstream))
         app = create_app(service)
         server = create_mcp(service)
         tools = await server.list_tools()
         assert {tool.name for tool in tools} == {
-            "oura_get_day", "oura_get_days", "oura_get_records", "oura_get_record", "oura_resources", "oura_status"}
+            "oura_get_day",
+            "oura_get_days",
+            "oura_get_records",
+            "oura_get_record",
+            "oura_resources",
+            "oura_status",
+        }
         assert all(tool.annotations and tool.annotations.readOnlyHint for tool in tools)
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app), base_url="http://127.0.0.1") as api:
             assert (await api.get("/health")).json() == {"status": "ok"}
@@ -53,10 +62,23 @@ async def test_http_and_mcp_share_data_and_errors(tmp_path: Path) -> None:
 
 @pytest.mark.anyio
 async def test_stdio_starts_and_advertises_six_tools_without_http(tmp_path: Path) -> None:
-    root = Path(__file__).resolve().parents[2]
-    params = StdioServerParameters(command="uv", args=["run", "--no-sync", "--directory", str(root),
-        "python", "-m", "oura_connector", "--config", str(tmp_path / "config.toml"), "mcp"],
-        env={"PYTHONPATH": str(root / "src")})
+    root = Path(__file__).resolve().parents[1]
+    params = StdioServerParameters(
+        command="uv",
+        args=[
+            "run",
+            "--no-sync",
+            "--directory",
+            str(root),
+            "python",
+            "-m",
+            "oura_connector",
+            "--config",
+            str(tmp_path / "config.toml"),
+            "mcp",
+        ],
+        env={"PYTHONPATH": str(root / "src")},
+    )
     async with stdio_client(params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()

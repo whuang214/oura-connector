@@ -658,7 +658,7 @@ wheels = [
 ]
 
 [[package]]
-name = "oura-data-api"
+name = "oura-connector"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },

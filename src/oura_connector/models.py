@@ -42,7 +42,7 @@ class Query(BaseModel):
         dates = (self.start_date, self.end_date)
         times = (self.start_datetime, self.end_datetime)
         if spec.filters == "date":
-            if any(times) or any(v is None for v in dates):
+            if any(v is not None for v in times) or any(v is None for v in dates):
                 raise ValueError("This resource requires only start_date and end_date")
             assert self.start_date is not None and self.end_date is not None
             start, end = iso_date(self.start_date), iso_date(self.end_date)
@@ -57,7 +57,7 @@ class Query(BaseModel):
                 end += timedelta(days=1)
             return {"start_date": self.start_date, "end_date": end.isoformat()}
         if spec.filters == "datetime":
-            if any(dates) or any(v is None for v in times):
+            if any(v is not None for v in dates) or any(v is None for v in times):
                 raise ValueError("This resource requires only start_datetime and end_datetime")
             assert self.start_datetime is not None and self.end_datetime is not None
             elapsed = (aware_datetime(self.end_datetime) - aware_datetime(self.start_datetime)).total_seconds()

@@ -36,15 +36,35 @@ No real .env files or private state may be read, copied, modified, or indexed. E
 - Small default tool surface; no framework for plugins/rules or persistent health cache.
 - Preserve transport security and exact origin boundaries; errors must not echo bearer tokens or upstream payloads.
 
-## Current checkpoint
+## Final checkpoint
 
-Completed: cloned renamed repo; inspected status/history/docs/manifest/source; verified native tool route; generated ignored navigation graph; reviewed official uv and MCP setup documentation; saved approved design and audited sequence.
+Implementation and offline verification complete on September 28, 2026. The public package and command are oura-connector. One service serves six MCP tools and the optional authenticated loopback HTTP API. The legacy package, analysis, old CLI commands, old fixtures and obsolete documentation were removed as 59 exact, individually reviewed tracked file deletions. No recursive deletion, credential migration, remote deletion, or push was performed.
 
-Foundation complete: uv.lock and Python 3.12 local environment; separate TOML settings and protected credentials; reused hardened OAuth and rotation locking. Baseline: 134 passed, one obsolete documentation inventory failed and was corrected for the approved documents. New and existing tests: 163 passed. Ruff and strict mypy pass for the new foundation. Next: bounded retrieval and resource contracts. Legacy package remains temporarily during independently verified migration.
+Delivered:
 
+- TOML configuration outside the repo, protected credentials, OAuth state/PKCE, atomic rotation and refresh locking.
+- Registry of 19 official collections, bounded streaming/retries, source lookup, and resumable pagination including mid-page continuation with drift detection.
+- Inclusive day/range tools, per-resource range fanout, independent collection outcomes and source-assigned day grouping.
+- Compact formatting with unit labels, separate sleep scores and periods, null/zero preservation, disclosed rest/deleted omissions, and full source mode.
+- Six stdio MCP tools, equivalent HTTP operations, and setup/login/status/doctor/mcp/serve commands.
+- One pyproject.toml and uv.lock, short setup/data/development guides and a non-secret TOML example.
 
-Retrieval wave: registry covers 19 official collections; bounded streaming, retries, record lookup, offset/fingerprint continuation, date/timestamp validation, and independent collection outcomes implemented. Focused suite: 38 passed; strict mypy and Ruff pass. Date-boundary evidence: official schema accepts date/datetime but does not document inclusivity; primary reproduction https://github.com/daveremy/oura-mcp/issues/5 reports exclusive end on sleep/daily_activity/workout/session. The registry translates only those four upper bounds, with source-day filtering; mock tests verify translation, live confirmation remains pending. Next: formatting and day assembly.
+Verification:
 
-Day/formatting wave complete: one range fetch per resource, independent collection outcomes per day, source-day grouping, sleep record omission counts, null/zero preservation, explicit units, field selection and response cap. Focused suite: 44 passed; strict mypy and Ruff pass. Next: thin interfaces and CLI.
+- Baseline: 134 passed; the previous documentation inventory test rejected the newly approved design docs and was corrected before the foundation commit.
+- Final: 62 tests passed, 82.62% branch-aware coverage (75% required).
+- Ruff check and strict mypy passed for all 15 package modules; Ruff formatting applied.
+- A real stdio subprocess initialized, advertised exactly six tools, returned local status, and rejected invalid input.
+- Mock HTTP/MCP data parity, bearer/Host/Origin protection, actual loopback OAuth callback with forged and valid state, refresh races, pagination/retry/timeout/size boundaries, DST, and sleep cases passed.
+- uv built the wheel and source distribution. Both member inventories were checked: no credentials, old package, analytics, or navigation artifacts. The wheel itself imported and executed CLI help in isolated Python mode. Documentation links resolve.
+- No live Oura calls, personal health records, or real .env files were accessed. Test credentials and records are synthetic.
 
-Interface wave complete: six annotated stdio tools, equivalent loopback HTTP operations, bearer/Host/Origin checks, CLI setup/login/status/doctor/mcp/serve, browser callback with state and PKCE. 48 focused tests pass including a real stdio subprocess and protocol handshake; Ruff and strict mypy pass. One upstream pydantic-settings annotation warning occurs when FastMCP is constructed; protocol verification succeeds. No real credentials accessed or live Oura calls made. Next: retire legacy files and finalize package/docs/build.
+Known limits and follow-up:
+
+- User login and live account verification remain outstanding. Run setup, login, and doctor --live, then inspect a known day.
+- The official schema does not explicitly document end-date inclusivity. Primary reproduction at https://github.com/daveremy/oura-mcp/issues/5 reports exclusive upper dates on sleep/daily_activity/workout/session. The registry translates those four only and filters source days; mocks verify this, live boundary confirmation is still needed.
+- FastMCP emits one upstream pydantic-settings incomplete-annotation warning with the locked dependency set. Protocol operation passed. No warning was suppressed.
+- Windows x64 Python 3.12 was tested. Other platforms and Python versions are not claimed tested.
+- Working branch: overhaul. Earlier passing implementation commits: 7501a19 (foundation), f5a9637 (retrieval), cf3c01e (days/formatting), 7ac26a5 (interfaces). The final cleanup/audit commit follows this record. Nothing pushed.
+
+The user's September 28 approval covers future Python libraries for this work. No further implementation blocker remains; live account access is a user setup step, not a completed verification claim.

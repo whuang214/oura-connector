@@ -1,150 +1,72 @@
-# Oura Data API
+# Oura Connector
 
-A self-hosted, read-only JSON API for personal Oura data and deterministic
-recovery analytics.
+Pull your Oura data locally through six MCP tools or an optional HTTP API. Ask for a day, a date range, a collection, or one record. Both interfaces use the same Python service.
 
-The project turns Oura API v2 into a stable `/api/v1` contract with
-strict validation, explicit units, coverage-aware analytics, and predictable
-missing-data behavior. It is built with FastAPI and works as a standalone API
-for scripts, applications, dashboards, or AI integrations.
-
-## What it provides
-
-- Granular sleep, readiness, activity, stress, SpO2, workout, session, heart
-  rate, and ring resources
-- Analysis-ready daily signals and observed-only weekly trends
-- Local Oura OAuth, refresh-token rotation, and a separate API bearer token
-- Sanitized fixture data for development without an Oura account
-- A versioned response envelope, bounded pagination, and structured errors
-
-Missing data is never converted to zero or synthesized into placeholder days.
-Oura calorie estimates remain context-only and never become nutrition targets.
-
-## How it fits together
-
-```text
-Oura API -> provider adapter -> canonical models + analytics -> FastAPI -> your client
-```
-
-Oura provider details stay behind the adapter, so this project's V1 contract is
-independent of Oura's provider version. Google Sheets and MCP are optional
-consumers and are not part of this repository.
+The connector retrieves Oura's measurements and scores. It adds readable names and units, preserves separate sleep periods, and reports missing or incomplete data. There is no analytics, coaching, weekly comparison, Sheets integration, or background sync.
 
 ## Quick start
 
-Requirements: Python 3.11–3.14 and Git. Use a native ARM64 Python build on
-Windows ARM64.
+Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/). Verified on Windows x64 with Python 3.12.
 
 ```powershell
-git clone https://github.com/whuang214/oura-data-api.git
-cd oura-data-api
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -e .
-Copy-Item .env.example .env
+uv sync --locked
+uv run oura-connector setup --timezone America/New_York
+uv run oura-connector login
+uv run oura-connector doctor --live
 ```
 
-On macOS or Linux, activate with `source .venv/bin/activate`.
+Create an [Oura OAuth application](https://cloud.ouraring.com/oauth/applications) first. Register `http://localhost:8765/callback` as its redirect URI. Setup asks for your client ID and hides the client-secret input. Login opens Oura in your browser.
 
-For an offline demo, set `OURA_MODE=fixture` and add a private
-`OURA_GATEWAY_TOKEN` of at least 32 characters. For live data, add your Oura
-application credentials and run:
+Settings and credentials live outside the repository, under `%LOCALAPPDATA%/oura-connector` on Windows or `$XDG_CONFIG_HOME/oura-connector` (default `~/.config/oura-connector`) elsewhere. The connector does not read `.env` files.
 
-```powershell
-oura-oauth authorize
-oura-api
-```
+## Connect an MCP client
 
-The API starts at `http://127.0.0.1:8766`. OpenAPI is available at
-`http://127.0.0.1:8766/docs` when enabled.
-
-```powershell
-curl.exe http://127.0.0.1:8766/api/v1/health
-```
-
-See [Setup and authentication](<docs/01 - Setup and Authentication.md>) for
-the complete live-data flow.
-
-## Endpoint overview
-
-| Route family | What `data` returns |
-| --- | --- |
-| `/health`, `/status`, `/capabilities` | Liveness, sanitized runtime state, and available Oura resources |
-| `/auth/*`, `/profile` | Local OAuth connection operations and optional profile data |
-| `/days`, `/days/{day}` | Composite Oura days with requested sections and coverage |
-| `/analytics/daily-signals*` | Readable daily sleep, recovery, activity, stress, workout, and baseline fields |
-| `/analytics/daily-coverage` | One audit row for every requested date, including gaps and errors |
-| `/analytics/weekly-trends` | Observed weekly aggregates with counts and coverage denominators |
-| `/daily/*` | Granular daily activity, readiness, sleep, stress, SpO2, and heart-health records |
-| `/sleep-periods`, `/workouts`, `/sessions`, and related routes | Detailed sleep and event records |
-| `/heart-rate`, `/ring-battery` | Timestamped time-series samples |
-| `*/samples/*` | Explicitly requested dense source samples |
-
-All routes use the `/api/v1` prefix. Collections return arrays; document and
-single-day routes return one object. See the [full route reference](<docs/03 - API Routes.md>).
-
-## Response shape
+Add a local stdio server using your client's supported MCP configuration:
 
 ```json
 {
-  "data": [],
-  "meta": {
-    "api_version": "1",
-    "schema_version": "1.0.0",
-    "request_id": "01J...",
-    "next_cursor": null
-  },
-  "warnings": []
+  "mcpServers": {
+    "oura": {
+      "command": "uv",
+      "args": ["run", "--locked", "--directory", "C:/path/to/oura-connector", "oura-connector", "mcp"]
+    }
+  }
 }
 ```
 
-Protected routes require `Authorization: Bearer <gateway-token>`. Date ranges
-are inclusive and limited to 90 days; time-series ranges are limited to seven
-days. Errors use `application/problem+json`.
+Replace the directory with your checkout. No HTTP server is needed. If your client cannot find uv, use its absolute executable path.
 
-## Project structure
+| Tool | Purpose |
+| --- | --- |
+| `oura_get_day` | One explicit Oura date, with selectable sections |
+| `oura_get_days` | Up to 31 inclusive dates, with no aggregation |
+| `oura_get_records` | A collection with bounded, resumable pagination |
+| `oura_get_record` | One source record by ID |
+| `oura_resources` | Resource names, filters, fields, units, and known scopes |
+| `oura_status` | Local date, timezone, and sanitized credential status |
 
-```text
-src/oura_data_api/
-|-- api/          FastAPI routes, validation, envelopes, and errors
-|-- provider/     Oura transport and resource registry
-|-- services/     Request orchestration and canonical mapping
-|-- analytics/    Deterministic daily and weekly features
-|-- fixtures/     Sanitized offline sample data
-|-- auth.py       OAuth and protected token storage
-`-- config.py     Strict .env-only configuration
-scripts/          Distribution and privacy checks
-tests/            Unit, contract, security, and runtime tests
-docs/             Setup, design, route, and contributor guides
-```
+Example arguments: `{"date":"2026-09-27","include":["sleep","readiness"]}`. Default sections are sleep, readiness, activity, stress, and SpO2. Use `"format":"source"` for full upstream records.
 
-## Documentation
-
-Start with the [documentation map](docs/README.md), then use:
-
-- [Setup and authentication](<docs/01 - Setup and Authentication.md>)
-- [System design](<docs/02 - System Design.md>)
-- [API routes](<docs/03 - API Routes.md>)
-- [Data model](<docs/04 - Data Model.md>)
-- [Configuration and security](<docs/05 - Configuration and Security.md>)
-- [Development](<docs/06 - Development.md>)
-
-## Development
+## Optional HTTP API
 
 ```powershell
-python -m pip install -e ".[dev]"
-python -m pytest
-python -m ruff check .
-python -m mypy
+uv run oura-connector serve
 ```
 
-## Related project
+The API listens on `127.0.0.1:8766`. `/health` reports process liveness; other routes require `Authorization: Bearer <http_token>`. Setup generates that token in protected `credentials.json`. Keep it in your HTTP client's secret storage. Browser-origin requests are rejected.
 
-[Oura MCP](https://github.com/whuang214/oura-mcp) exposes this API to MCP
-clients and includes an optional Google Sheets sync skill.
+## Customize and develop
 
-## License
+Edit your non-secret `config.toml`; see [example settings](examples/config.toml). Change default sections, compact source-field selection, timezone, or operational limits.
 
-[MIT](LICENSE). See [Privacy](PRIVACY.md) and [Terms](TERMS.md). Oura metrics
-are wellness data, not medical advice. This project is not affiliated with or
-endorsed by Oura.
+```powershell
+uv sync --locked --extra dev
+uv run --locked pytest
+uv run --locked ruff check .
+uv run --locked mypy
+uv build
+```
+
+[Setup and security](docs/setup.md) · [Data and sleep behavior](docs/data.md) · [Architecture and development](docs/development.md) · [Approved design](docs/design.md)
+
+Tests use synthetic data and mock Oura responses. Live account verification is a separate step. The connector adds no hosted service fee; Oura controls account/device eligibility and API access.

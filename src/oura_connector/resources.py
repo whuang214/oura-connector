@@ -22,54 +22,114 @@ class Resource:
     exclusive_end: bool = False
 
 
-def resource(name: str, fields: str, scopes: str = "", *, filters: FilterKind = "date",
-             lookup: bool = True, day_field: str | None = "day") -> Resource:
-    return Resource(name, filters, tuple(fields.split()), tuple(scopes.split()), lookup, day_field,
-                    name in {"daily_activity", "sleep", "workout", "session"})
+def resource(
+    name: str,
+    fields: str,
+    scopes: str = "",
+    *,
+    filters: FilterKind = "date",
+    lookup: bool = True,
+    day_field: str | None = "day",
+) -> Resource:
+    return Resource(
+        name,
+        filters,
+        tuple(fields.split()),
+        tuple(scopes.split()),
+        lookup,
+        day_field,
+        name in {"daily_activity", "sleep", "workout", "session"},
+    )
 
 
-RESOURCES = MappingProxyType({r.name: r for r in (
-    resource("daily_sleep", "score contributors timestamp", "daily"),
-    resource("sleep", "type period bedtime_start bedtime_end total_sleep_duration time_in_bed "
-             "deep_sleep_duration rem_sleep_duration light_sleep_duration awake_time latency efficiency "
-             "average_hrv average_heart_rate lowest_heart_rate average_breath low_battery_alert", "daily"),
-    resource("daily_readiness", "score contributors temperature_deviation temperature_trend_deviation timestamp", "daily"),
-    resource("daily_activity", "score steps active_calories total_calories target_calories contributors "
-             "high_activity_time medium_activity_time low_activity_time sedentary_time resting_time "
-             "non_wear_time equivalent_walking_distance timestamp", "daily"),
-    resource("daily_stress", "day_summary stress_high recovery_high"),
-    resource("daily_spo2", "spo2_percentage breathing_disturbance_index", "spo2"),
-    resource("workout", "activity calories distance intensity label source start_datetime end_datetime", "workout"),
-    resource("session", "type mood start_datetime end_datetime", "session"),
-    resource("daily_cardiovascular_age", "vascular_age pulse_wave_velocity"),
-    resource("vO2_max", "vo2_max timestamp"),
-    resource("daily_resilience", "level contributors"),
-    resource("sleep_time", "optimal_bedtime recommendation status", "daily"),
-    resource("enhanced_tag", "tag_type_code custom_name start_time end_time start_day end_day comment", "tag",
-             day_field=None),
-    resource("tag", "tags text timestamp", "tag"),
-    resource("rest_mode_period", "start_day end_day start_time end_time episodes", day_field=None),
-    resource("heartrate", "timestamp timestamp_unix bpm source", "heartrate", filters="datetime",
-             lookup=False, day_field=None),
-    resource("ring_battery_level", "timestamp timestamp_unix level charging in_charger", filters="datetime",
-             lookup=False, day_field=None),
-    resource("ring_configuration", "color design firmware_version hardware_type set_up_at size", filters="none",
-             day_field=None),
-    resource("personal_info", "age weight height biological_sex email", "personal email", filters="singleton",
-             lookup=False, day_field=None),
-)})
+RESOURCES = MappingProxyType(
+    {
+        r.name: r
+        for r in (
+            resource("daily_sleep", "score contributors timestamp", "daily"),
+            resource(
+                "sleep",
+                "type period bedtime_start bedtime_end total_sleep_duration time_in_bed "
+                "deep_sleep_duration rem_sleep_duration light_sleep_duration awake_time latency efficiency "
+                "average_hrv average_heart_rate lowest_heart_rate average_breath low_battery_alert",
+                "daily",
+            ),
+            resource(
+                "daily_readiness",
+                "score contributors temperature_deviation temperature_trend_deviation timestamp",
+                "daily",
+            ),
+            resource(
+                "daily_activity",
+                "score steps active_calories total_calories target_calories contributors "
+                "high_activity_time medium_activity_time low_activity_time sedentary_time resting_time "
+                "non_wear_time equivalent_walking_distance timestamp",
+                "daily",
+            ),
+            resource("daily_stress", "day_summary stress_high recovery_high"),
+            resource("daily_spo2", "spo2_percentage breathing_disturbance_index", "spo2"),
+            resource(
+                "workout", "activity calories distance intensity label source start_datetime end_datetime", "workout"
+            ),
+            resource("session", "type mood start_datetime end_datetime", "session"),
+            resource("daily_cardiovascular_age", "vascular_age pulse_wave_velocity"),
+            resource("vO2_max", "vo2_max timestamp"),
+            resource("daily_resilience", "level contributors"),
+            resource("sleep_time", "optimal_bedtime recommendation status", "daily"),
+            resource(
+                "enhanced_tag",
+                "tag_type_code custom_name start_time end_time start_day end_day comment",
+                "tag",
+                day_field=None,
+            ),
+            resource("tag", "tags text timestamp", "tag"),
+            resource("rest_mode_period", "start_day end_day start_time end_time episodes", day_field=None),
+            resource(
+                "heartrate",
+                "timestamp timestamp_unix bpm source",
+                "heartrate",
+                filters="datetime",
+                lookup=False,
+                day_field=None,
+            ),
+            resource(
+                "ring_battery_level",
+                "timestamp timestamp_unix level charging in_charger",
+                filters="datetime",
+                lookup=False,
+                day_field=None,
+            ),
+            resource(
+                "ring_configuration",
+                "color design firmware_version hardware_type set_up_at size",
+                filters="none",
+                day_field=None,
+            ),
+            resource(
+                "personal_info",
+                "age weight height biological_sex email",
+                "personal email",
+                filters="singleton",
+                lookup=False,
+                day_field=None,
+            ),
+        )
+    }
+)
 
-SECTIONS = MappingProxyType({
-    "sleep": {"daily": "daily_sleep", "periods": "sleep"},
-    "readiness": {"daily": "daily_readiness"},
-    "activity": {"daily": "daily_activity"},
-    "stress": {"daily": "daily_stress"},
-    "spo2": {"daily": "daily_spo2"},
-    "workouts": {"records": "workout"},
-    "sessions": {"records": "session"},
-    "heart_health": {"cardiovascular_age": "daily_cardiovascular_age", "vo2_max": "vO2_max"},
-    "resilience": {"daily": "daily_resilience"},
-})
+SECTIONS = MappingProxyType(
+    {
+        "sleep": {"daily": "daily_sleep", "periods": "sleep"},
+        "readiness": {"daily": "daily_readiness"},
+        "activity": {"daily": "daily_activity"},
+        "stress": {"daily": "daily_stress"},
+        "spo2": {"daily": "daily_spo2"},
+        "workouts": {"records": "workout"},
+        "sessions": {"records": "session"},
+        "heart_health": {"cardiovascular_age": "daily_cardiovascular_age", "vo2_max": "vO2_max"},
+        "resilience": {"daily": "daily_resilience"},
+    }
+)
 
 # Only formatting/units, never new physiological calculations.
 FIELD_LABELS = {
@@ -99,9 +159,17 @@ FIELD_LABELS = {
     "weight": ("weight", "kg"),
     "height": ("height", "meters"),
     **{name: (name, "kcal") for name in ("calories", "active_calories", "total_calories", "target_calories")},
-    **{name: (name.removesuffix("_time") + "_seconds", "seconds") for name in (
-        "high_activity_time", "medium_activity_time", "low_activity_time", "sedentary_time",
-        "resting_time", "non_wear_time")},
+    **{
+        name: (name.removesuffix("_time") + "_seconds", "seconds")
+        for name in (
+            "high_activity_time",
+            "medium_activity_time",
+            "low_activity_time",
+            "sedentary_time",
+            "resting_time",
+            "non_wear_time",
+        )
+    },
 }
 
 

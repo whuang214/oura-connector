@@ -9,8 +9,19 @@ from .models import Collection, Format, JsonObject
 from .resources import FIELD_LABELS, get_resource
 
 IDENTITY_FIELDS = (
-    "id", "day", "type", "timestamp", "timestamp_unix", "bedtime_start", "bedtime_end",
-    "start_datetime", "end_datetime", "start_day", "end_day", "start_time", "end_time",
+    "id",
+    "day",
+    "type",
+    "timestamp",
+    "timestamp_unix",
+    "bedtime_start",
+    "bedtime_end",
+    "start_datetime",
+    "end_datetime",
+    "start_day",
+    "end_day",
+    "start_time",
+    "end_time",
 )
 SLEEP_TYPES = {"long_sleep", "sleep", "late_nap", "rest", "deleted"}
 
@@ -25,8 +36,9 @@ def duration_display(seconds: object) -> str | None:
     return f"{hours}h {minutes}m" + (f" {secs}s" if secs else "")
 
 
-def format_record(resource: str, record: JsonObject, format: Format,
-                  fields: tuple[str, ...] | None = None) -> JsonObject:
+def format_record(
+    resource: str, record: JsonObject, format: Format, fields: tuple[str, ...] | None = None
+) -> JsonObject:
     if format == "source":
         return deepcopy(record)
     selected = set((*IDENTITY_FIELDS, *(fields if fields is not None else get_resource(resource).fields)))
@@ -49,15 +61,14 @@ def format_record(resource: str, record: JsonObject, format: Format,
     return output
 
 
-def format_collection(collection: Collection, format: Format,
-                      fields: tuple[str, ...] | None = None) -> Collection:
+def format_collection(collection: Collection, format: Format, fields: tuple[str, ...] | None = None) -> Collection:
     output = collection.model_copy(deep=True)
     retained = collection.records
     if collection.resource == "sleep" and format == "compact":
-        omitted = Counter(str(row.get("type")) for row in retained if row.get("type") in {"rest", "deleted"})
-        retained = [row for row in retained if row.get("type") not in {"rest", "deleted"}]
+        omitted = Counter(str(row.get("type")) for row in retained if row.get("type") in ("rest", "deleted"))
+        retained = [row for row in retained if row.get("type") not in ("rest", "deleted")]
         output.omitted_records = dict(omitted)
-        if any(row.get("type") not in SLEEP_TYPES for row in retained):
+        if any(not isinstance(row.get("type"), str) or row["type"] not in SLEEP_TYPES for row in retained):
             output.warnings.append("Unrecognized sleep type retained; no classification was inferred")
     output.records = [format_record(collection.resource, row, format, fields) for row in retained]
     if output.complete:

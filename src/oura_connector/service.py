@@ -37,8 +37,10 @@ class Service:
 
     def _bounded(self, value: JsonObject) -> JsonObject:
         if json_size(value) > self.settings.max_response_bytes:
-            raise LimitError("Response exceeds max_response_bytes; select fewer sections, narrow the range, "
-                             "lower page_budget, or raise the configured limit")
+            raise LimitError(
+                "Response exceeds max_response_bytes; select fewer sections, narrow the range, "
+                "lower page_budget, or raise the configured limit"
+            )
         return value
 
     @staticmethod
@@ -50,8 +52,9 @@ class Service:
     async def get_day(self, date: str, include: list[str] | None = None, format: str = "compact") -> JsonObject:
         return (await self.get_days(date, date, include, format))["days"][0]  # type: ignore[no-any-return]
 
-    async def get_days(self, start_date: str, end_date: str, include: list[str] | None = None,
-                       format: str = "compact") -> JsonObject:
+    async def get_days(
+        self, start_date: str, end_date: str, include: list[str] | None = None, format: str = "compact"
+    ) -> JsonObject:
         output_format = self._format(format)
         start, end = iso_date(start_date), iso_date(end_date)
         if not 0 <= (end - start).days < 31:
@@ -85,63 +88,114 @@ class Service:
                     parts[key] = formatted.model_dump(exclude_none=True)
                 day_sections[section] = parts
             days.append({"date": day, "format": output_format, "retrieved_at": retrieved_at, "sections": day_sections})
-        return self._bounded({"start_date": start_date, "end_date": end_date, "format": output_format,
-                              "retrieved_at": retrieved_at, "days": days})
+        return self._bounded(
+            {
+                "start_date": start_date,
+                "end_date": end_date,
+                "format": output_format,
+                "retrieved_at": retrieved_at,
+                "days": days,
+            }
+        )
 
-    async def get_records(self, resource: str, start_date: str | None = None, end_date: str | None = None,
-                          start_datetime: str | None = None, end_datetime: str | None = None,
-                          cursor: str | None = None, page_budget: int | None = None,
-                          format: str = "compact") -> JsonObject:
+    async def get_records(
+        self,
+        resource: str,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        start_datetime: str | None = None,
+        end_datetime: str | None = None,
+        cursor: str | None = None,
+        page_budget: int | None = None,
+        format: str = "compact",
+    ) -> JsonObject:
         output_format = self._format(format)
         get_resource(resource)
-        query = Query(resource=resource, start_date=start_date, end_date=end_date,
-                      start_datetime=start_datetime, end_datetime=end_datetime)
-        if cursor:
+        query = Query(
+            resource=resource,
+            start_date=start_date,
+            end_date=end_date,
+            start_datetime=start_datetime,
+            end_datetime=end_datetime,
+        )
+        if cursor is not None:
             original = Cursor.decode(cursor).query
             # A continuation carries its bounds. Supplied bounds must match.
-            if original.resource != resource or any(value is not None and getattr(original, name) != value
-                for name, value in query.model_dump(exclude={"resource"}).items()):
+            if original.resource != resource or any(
+                value is not None and getattr(original, name) != value
+                for name, value in query.model_dump(exclude={"resource"}).items()
+            ):
                 raise ValueError("Cursor belongs to a different query")
             query = original
         async with self._semaphore:
             collection = await self.client.collect(query, cursor=cursor, page_budget=page_budget)
         output = format_collection(collection, output_format, self.settings.compact_fields.get(resource))
-        return self._bounded({**output.model_dump(exclude_none=True), "format": output_format,
-                              "query": query.model_dump(exclude_none=True),
-                              "retrieved_at": datetime.now(timezone.utc).isoformat()})
+        return self._bounded(
+            {
+                **output.model_dump(exclude_none=True),
+                "format": output_format,
+                "query": query.model_dump(exclude_none=True),
+                "retrieved_at": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
     async def get_record(self, resource: str, record_id: str, format: str = "compact") -> JsonObject:
         output_format = self._format(format)
         async with self._semaphore:
             record = await self.client.record(resource, record_id)
-        return self._bounded({"resource": resource, "format": output_format,
-                              "record": format_record(resource, record, output_format,
-                                                      self.settings.compact_fields.get(resource)),
-                              "retrieved_at": datetime.now(timezone.utc).isoformat()})
+        return self._bounded(
+            {
+                "resource": resource,
+                "format": output_format,
+                "record": format_record(resource, record, output_format, self.settings.compact_fields.get(resource)),
+                "retrieved_at": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
     def resources(self, resource: str | None = None) -> JsonObject:
         specs = [get_resource(resource)] if resource is not None else list(RESOURCES.values())
-        return {"sections": dict(SECTIONS), "defaults": list(self.settings.default_sections), "resources": [{
-            "name": spec.name, "filters": spec.filters, "supports_id_lookup": spec.lookup,
-            "known_scopes": list(spec.scopes),
-            "access_note": "Availability also depends on Oura permissions, device, and data availability",
-            "compact_fields": {name: {"output": FIELD_LABELS.get(name, (name, ""))[0],
-                                      "unit": FIELD_LABELS.get(name, (name, None))[1]}
-                               for name in dict.fromkeys((*IDENTITY_FIELDS,
-                                   *self.settings.compact_fields.get(spec.name, spec.fields)))},
-        } for spec in specs]}
+        return {
+            "sections": dict(SECTIONS),
+            "defaults": list(self.settings.default_sections),
+            "resources": [
+                {
+                    "name": spec.name,
+                    "filters": spec.filters,
+                    "supports_id_lookup": spec.lookup,
+                    "known_scopes": list(spec.scopes),
+                    "access_note": "Availability also depends on Oura permissions, device, and data availability",
+                    "compact_fields": {
+                        name: {
+                            "output": FIELD_LABELS.get(name, (name, ""))[0],
+                            "unit": FIELD_LABELS.get(name, (name, None))[1],
+                        }
+                        for name in dict.fromkeys(
+                            (*IDENTITY_FIELDS, *self.settings.compact_fields.get(spec.name, spec.fields))
+                        )
+                    },
+                }
+                for spec in specs
+            ],
+        }
 
     def status(self) -> JsonObject:
         now = datetime.now(ZoneInfo(self.settings.timezone))
-        result: JsonObject = {"timezone": self.settings.timezone, "local_date": now.date().isoformat(),
-                              "oauth_client_configured": self.settings.oauth_client_configured,
-                              "credential_present": self.settings.token_file.exists(),
-                              "live_connection_verified": False, "state": "not_authorized"}
+        result: JsonObject = {
+            "timezone": self.settings.timezone,
+            "local_date": now.date().isoformat(),
+            "oauth_client_configured": self.settings.oauth_client_configured,
+            "credential_present": self.settings.token_file.exists(),
+            "live_connection_verified": False,
+            "state": "not_authorized",
+        }
         if result["credential_present"]:
             try:
                 token = TokenStore.from_settings(self.settings).load()
-                result.update(state="credentials_present", expires_at=token.expires_at.isoformat()
-                              if token.expires_at else None, scopes=token.scope)
+                result.update(
+                    state="credentials_present",
+                    expires_at=token.expires_at.isoformat() if token.expires_at else None,
+                    scopes=token.scope,
+                )
             except TokenStoreError:
                 result["state"] = "credential_store_unavailable"
         return result

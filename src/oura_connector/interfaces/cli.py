@@ -7,12 +7,13 @@ import asyncio
 import getpass
 import json
 import secrets
+import socket
 import sys
 import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from ..auth import (
     OAuthCallback,
@@ -34,18 +35,24 @@ def setup(path: Path, client_id: str | None, timezone: str) -> None:
         raise ConfigurationError("Configuration must be a TOML file")
     if path.exists() or (path.parent / "credentials.json").exists():
         raise ConfigurationError("Setup files already exist; edit the existing config.toml instead")
-    ZoneInfo(timezone)
+    try:
+        ZoneInfo(timezone)
+    except (ZoneInfoNotFoundError, ValueError):
+        raise ConfigurationError("timezone must be an IANA timezone") from None
     client_id = client_id or input("Oura OAuth client ID: ").strip()
     client_secret = getpass.getpass("Oura OAuth client secret (hidden): ").strip()
     if not client_id or not client_secret:
         raise ConfigurationError("Client ID and secret are required")
-    write_protected_json(path.parent / "credentials.json",
-                         {"client_secret": client_secret, "http_token": secrets.token_urlsafe(32)})
+    write_protected_json(
+        path.parent / "credentials.json", {"client_secret": client_secret, "http_token": secrets.token_urlsafe(32)}
+    )
     # JSON string quoting is also valid for these TOML basic strings.
     with path.open("x", encoding="utf-8") as stream:
-        stream.write(f"client_id = {json.dumps(client_id)}\ntimezone = {json.dumps(timezone)}\n"
-                     'redirect_uri = "http://localhost:8765/callback"\n'
-                     'default_sections = ["sleep", "readiness", "activity", "stress", "spo2"]\n')
+        stream.write(
+            f"client_id = {json.dumps(client_id)}\ntimezone = {json.dumps(timezone)}\n"
+            'redirect_uri = "http://localhost:8765/callback"\n'
+            'default_sections = ["sleep", "readiness", "activity", "stress", "spo2"]\n'
+        )
     print(f"Saved {path}. Credentials are protected beside it. Run login next.")
 
 
@@ -57,6 +64,13 @@ def browser_callback(settings: Settings) -> OAuthCallback:
     store = OAuthSessionStore.from_settings(settings)
     callback: OAuthCallback | None = None
     denied = False
+    created_session = False
+
+    class CallbackServer(HTTPServer):
+        def get_request(self) -> tuple[socket.socket, tuple[str, int]]:
+            connection, address = super().get_request()
+            connection.settimeout(5)
+            return connection, address
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, format: str, *args: object) -> None:
@@ -81,19 +95,22 @@ def browser_callback(settings: Settings) -> OAuthCallback:
             self.wfile.write(message)
 
     try:
-        with HTTPServer(("127.0.0.1", parsed.port or 8765), Handler) as server:
+        with CallbackServer(("127.0.0.1", parsed.port or 8765), Handler) as server:
             server.timeout = 1
             session = store.create(settings, use_pkce=True)
+            created_session = True
             assert session.code_verifier is not None
-            url = OAuthClient(settings).authorization_url(state=session.state,
-                                                          code_challenge=code_challenge_for(session.code_verifier))
+            url = OAuthClient(settings).authorization_url(
+                state=session.state, code_challenge=code_challenge_for(session.code_verifier)
+            )
             print("Opening Oura authorization. If the browser does not open, visit:\n" + url, file=sys.stderr)
             webbrowser.open(url)
             deadline = time.monotonic() + 180
             while callback is None and not denied and time.monotonic() < deadline:
                 server.handle_request()
     finally:
-        store.delete()
+        if created_session:
+            store.delete()
     if callback is None:
         raise AuthenticationError("Login was denied or timed out; run login again")
     return callback
@@ -102,7 +119,8 @@ def browser_callback(settings: Settings) -> OAuthCallback:
 async def exchange(settings: Settings, callback: OAuthCallback) -> None:
     async with TokenStore.from_settings(settings).exclusive_lock():
         await OAuthClient(settings).exchange_authorization_code(
-            callback.code, code_verifier=callback.code_verifier, granted_scope=callback.granted_scope)
+            callback.code, code_verifier=callback.code_verifier, granted_scope=callback.granted_scope
+        )
 
 
 async def diagnostic(settings: Settings, live: bool) -> JsonObject:
@@ -114,8 +132,14 @@ async def diagnostic(settings: Settings, live: bool) -> JsonObject:
             date = result["local_date"]
             collection = await service.get_records("daily_sleep", date, date, page_budget=1)
             success = collection["complete"] and collection["status"] in {"ok", "empty"}
-            result.update(live_connection_verified=success, live_probe={
-                "resource": "daily_sleep", "status": collection["status"], "error": collection.get("error")})
+            result.update(
+                live_connection_verified=success,
+                live_probe={
+                    "resource": "daily_sleep",
+                    "status": collection["status"],
+                    "error": collection.get("error"),
+                },
+            )
         return result
     finally:
         await service.close()
@@ -160,11 +184,20 @@ def main() -> None:
 
             from .http import create_app
 
-            uvicorn.run(create_app(Service(settings)), host=settings.http_host, port=settings.http_port,
-                        access_log=False, log_level="warning")
+            uvicorn.run(
+                create_app(Service(settings)),
+                host=settings.http_host,
+                port=settings.http_port,
+                access_log=False,
+                log_level="warning",
+            )
     except (ConnectorError, ValueError, OSError) as exc:
         # Domain errors are sanitized. OS errors may contain local paths, so keep them generic.
-        message = str(exc) if isinstance(exc, (ConnectorError, ValueError)) else "Local operation failed; check paths and ports"
+        message = (
+            str(exc)
+            if isinstance(exc, (ConnectorError, ValueError))
+            else "Local operation failed; check paths and ports"
+        )
         print(message, file=sys.stderr)
         raise SystemExit(1) from None
 

@@ -24,7 +24,7 @@ def test_no_config_is_a_safe_disconnected_state(tmp_path: Path) -> None:
     assert not settings.oauth_client_configured
 
 
-@pytest.mark.parametrize("content", ['client_secret = "bad"', 'max_pages = 0', 'typo = true'])
+@pytest.mark.parametrize("content", ['client_secret = "bad"', "max_pages = 0", "typo = true"])
 def test_invalid_settings_fail_closed(tmp_path: Path, content: str) -> None:
     config = tmp_path / "config.toml"
     config.write_text(content)

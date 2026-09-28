@@ -22,8 +22,9 @@ API_ROOT = "https://api.ouraring.com/v2/usercollection/"
 
 
 class OuraClient:
-    def __init__(self, settings: Settings, *, http: httpx.AsyncClient | None = None,
-                 auth: AuthManager | None = None) -> None:
+    def __init__(
+        self, settings: Settings, *, http: httpx.AsyncClient | None = None, auth: AuthManager | None = None
+    ) -> None:
         self.settings = settings
         self.auth = auth or AuthManager(settings)
         self.http = http or httpx.AsyncClient(timeout=settings.timeout_seconds, trust_env=False, follow_redirects=False)
@@ -38,11 +39,15 @@ class OuraClient:
         refreshed = False
         attempt = 0
         while True:
-            delay = min(2 ** attempt, 8)
+            delay = min(2**attempt, 8)
             try:
-                async with self.http.stream("GET", API_ROOT + path, params=params,
-                                            headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
-                                            follow_redirects=False) as response:
+                async with self.http.stream(
+                    "GET",
+                    API_ROOT + path,
+                    params=params,
+                    headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+                    follow_redirects=False,
+                ) as response:
                     status = response.status_code
                     if status == 401 and not refreshed:
                         token = await self.auth.access_token(force_refresh=True, rejected_token=token)
@@ -54,8 +59,12 @@ class OuraClient:
                             delay = max(0, min(float(retry), 30))
                         except ValueError:
                             try:
-                                delay = max(0, min((parsedate_to_datetime(retry) -
-                                                   datetime.now(timezone.utc)).total_seconds(), 30))
+                                delay = max(
+                                    0,
+                                    min(
+                                        (parsedate_to_datetime(retry) - datetime.now(timezone.utc)).total_seconds(), 30
+                                    ),
+                                )
                             except (ValueError, TypeError, OverflowError):
                                 pass
                     elif status != 200:
@@ -65,11 +74,13 @@ class OuraClient:
                         async for chunk in response.aiter_bytes(chunk_size=65536):
                             chunks.extend(chunk)
                             if len(chunks) > self.settings.max_page_bytes:
-                                raise LimitError("Oura page exceeds max_page_bytes; narrow the interval or raise the limit")
+                                raise LimitError(
+                                    "Oura page exceeds max_page_bytes; narrow the interval or raise the limit"
+                                )
                         try:
                             body = json.loads(chunks)
                             json_size(body)
-                        except (ValueError, UnicodeError):
+                        except (ValueError, UnicodeError, RecursionError):
                             raise ApiError("Oura returned invalid JSON") from None
                         if not isinstance(body, dict):
                             raise ApiError("Oura returned an invalid object")
@@ -89,13 +100,12 @@ class OuraClient:
         async with asyncio.timeout(self.settings.operation_timeout_seconds):
             return await self.request(f"{resource}/{record_id}", {})
 
-    async def collect(self, query: Query, *, cursor: str | None = None,
-                      page_budget: int | None = None) -> Collection:
+    async def collect(self, query: Query, *, cursor: str | None = None, page_budget: int | None = None) -> Collection:
         params = query.parameters()
         budget = self.settings.max_pages if page_budget is None else page_budget
         if type(budget) is not int or not 1 <= budget <= self.settings.max_pages:
             raise ValueError("page_budget must be between 1 and configured max_pages")
-        state = Cursor.decode(cursor) if cursor else Cursor(query=query)
+        state = Cursor.decode(cursor) if cursor is not None else Cursor(query=query)
         if state.query != query:
             raise ValueError("Cursor belongs to a different query")
         spec = get_resource(query.resource)
@@ -130,7 +140,10 @@ class OuraClient:
                         size = json_size(row)
                         if size > self.settings.max_response_bytes:
                             raise LimitError("One source record exceeds max_response_bytes; raise the limit")
-                        if len(result.records) >= self.settings.max_records or used_bytes + size > self.settings.max_response_bytes:
+                        if (
+                            len(result.records) >= self.settings.max_records
+                            or used_bytes + size > self.settings.max_response_bytes
+                        ):
                             state.offset, state.page_hash = index, fingerprint
                             return self._partial(result, state)
                         result.records.append(row)
@@ -152,7 +165,10 @@ class OuraClient:
             result.status = "partial" if result.records else "error"
             if isinstance(exc, AuthenticationError) or isinstance(exc, ApiError) and exc.status_code in {401, 403}:
                 result.status = "partial" if result.records else "unavailable"
-            result.error = {"code": type(exc).__name__, "message": str(exc) or "Operation timed out; retry continuation"}
+            result.error = {
+                "code": type(exc).__name__,
+                "message": str(exc) or "Operation timed out; retry continuation",
+            }
             return result
 
     @staticmethod

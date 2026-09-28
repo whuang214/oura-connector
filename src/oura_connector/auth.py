@@ -182,8 +182,7 @@ def _validate_secure_file(path: Path) -> os.stat_result:
         except FileNotFoundError as exc:
             raise TokenStoreError("The OAuth token store does not exist") from exc
         is_reparse_point = bool(
-            getattr(details, "st_file_attributes", 0)
-            & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+            getattr(details, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
         )
         if stat.S_ISLNK(details.st_mode) or is_reparse_point or not stat.S_ISREG(details.st_mode):
             raise TokenStoreError("The OAuth token store is not a regular protected file")
@@ -203,9 +202,7 @@ def _validate_secure_file(path: Path) -> os.stat_result:
         )
         owner_sid = descriptor.GetSecurityDescriptorOwner()
         trusted_owner_sids = (user_sid, default_owner_sid, system_sid)
-        if owner_sid is None or not any(
-            _windows_sid_equal(owner_sid, trusted) for trusted in trusted_owner_sids
-        ):
+        if owner_sid is None or not any(_windows_sid_equal(owner_sid, trusted) for trusted in trusted_owner_sids):
             raise TokenStoreError("The OAuth token store is not owned by the current Windows user")
         dacl = descriptor.GetSecurityDescriptorDacl()
         if dacl is None:
@@ -250,14 +247,9 @@ def _ensure_parent(path: Path) -> None:
         except OSError as exc:
             raise TokenStoreError("The OAuth token-store parent could not be inspected") from exc
         is_reparse_point = bool(
-            getattr(details, "st_file_attributes", 0)
-            & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+            getattr(details, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
         )
-        if (
-            stat.S_ISLNK(details.st_mode)
-            or is_reparse_point
-            or not stat.S_ISDIR(details.st_mode)
-        ):
+        if stat.S_ISLNK(details.st_mode) or is_reparse_point or not stat.S_ISDIR(details.st_mode):
             raise TokenStoreError("The OAuth token-store parent is not a directory") from None
         # An existing custom parent may contain unrelated data. Never replace its
         # mode or DACL; the secret file itself is protected before any bytes are
@@ -480,9 +472,7 @@ class TokenStore:
             raise TokenStoreError("The OAuth token store could not be removed") from exc
 
     def exclusive_lock(self, *, timeout_seconds: float = 30.0) -> InterProcessFileLock:
-        return InterProcessFileLock(
-            self.path.with_name(f"{self.path.name}.lock"), timeout_seconds=timeout_seconds
-        )
+        return InterProcessFileLock(self.path.with_name(f"{self.path.name}.lock"), timeout_seconds=timeout_seconds)
 
 
 @dataclass(frozen=True, slots=True)
@@ -753,9 +743,7 @@ class OAuthClient:
                     },
                 )
             except httpx.HTTPError:
-                raise AuthenticationError(
-                    "The Oura revocation endpoint could not be reached"
-                ) from None
+                raise AuthenticationError("The Oura revocation endpoint could not be reached") from None
             if response.status_code >= 400:
                 raise AuthenticationError("Oura rejected the token revocation request")
         finally:
@@ -799,7 +787,7 @@ class OAuthClient:
                 body: dict[str, Any] = response.json()
                 raw_access_token = body["access_token"]
                 expires_in = int(body["expires_in"])
-            except (ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
+            except (ValueError, TypeError, KeyError, OverflowError, json.JSONDecodeError) as exc:
                 raise AuthenticationError("Oura returned an invalid OAuth token response") from exc
             if not isinstance(raw_access_token, str) or not raw_access_token or expires_in <= 0:
                 raise AuthenticationError("Oura returned an invalid OAuth token response")
@@ -810,37 +798,30 @@ class OAuthClient:
             refresh_token = raw_refresh_token if isinstance(raw_refresh_token, str) and raw_refresh_token else None
             if require_refresh_token and not refresh_token:
                 qualifier = (
-                    "a replacement refresh token"
-                    if payload.get("grant_type") == "refresh_token"
-                    else "a refresh token"
+                    "a replacement refresh token" if payload.get("grant_type") == "refresh_token" else "a refresh token"
                 )
                 raise AuthenticationError(f"Oura did not return {qualifier}; reauthorization is required")
             raw_scope = body.get("scope")
             scope = raw_scope if isinstance(raw_scope, str) and raw_scope.strip() else previous_scope
             if scope is not None:
                 missing = self.missing_requested_scopes(scope)
-                if "daily" in missing and "daily" in {
-                    _canonical_scope(value) for value in self.settings.scopes
-                }:
-                    granted = sorted(
-                        {
-                            _canonical_scope(value)
-                            for value in scope.replace(",", " ").split()
-                            if value
-                        }
-                    )
+                if "daily" in missing and "daily" in {_canonical_scope(value) for value in self.settings.scopes}:
+                    granted = sorted({_canonical_scope(value) for value in scope.replace(",", " ").split() if value})
                     granted_display = ", ".join(granted) if granted else "none"
                     raise AuthenticationError(
-                        "Oura did not grant the required daily OAuth scope; "
-                        f"granted scopes: {granted_display}"
+                        f"Oura did not grant the required daily OAuth scope; granted scopes: {granted_display}"
                     )
             obtained_at = self.clock()
             if obtained_at.tzinfo is None:
                 obtained_at = obtained_at.replace(tzinfo=timezone.utc)
+            try:
+                expires_at = obtained_at + timedelta(seconds=expires_in)
+            except OverflowError:
+                raise AuthenticationError("Oura returned an invalid OAuth expiry") from None
             return OAuthTokenSet(
                 access_token=raw_access_token,
                 token_type="Bearer",
-                expires_at=obtained_at + timedelta(seconds=expires_in),
+                expires_at=expires_at,
                 refresh_token=refresh_token,
                 scope=scope,
                 obtained_at=obtained_at,
@@ -854,9 +835,7 @@ class OAuthClient:
 
         if granted_scope is None:
             return ()
-        granted = {
-            _canonical_scope(value) for value in granted_scope.replace(",", " ").split() if value
-        }
+        granted = {_canonical_scope(value) for value in granted_scope.replace(",", " ").split() if value}
         requested = {_canonical_scope(value) for value in self.settings.scopes}
         return tuple(sorted(requested - granted))
 
@@ -887,9 +866,7 @@ class AuthManager:
         self.clock = clock
         self._refresh_lock = asyncio.Lock()
 
-    async def access_token(
-        self, *, force_refresh: bool = False, rejected_token: str | None = None
-    ) -> str:
+    async def access_token(self, *, force_refresh: bool = False, rejected_token: str | None = None) -> str:
         if self.settings.access_token:
             if force_refresh:
                 raise AuthenticationError("Oura rejected the configured access token")
