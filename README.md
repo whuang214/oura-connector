@@ -1,47 +1,42 @@
 # Oura Connector
 
-Self-hosted, open-source software for reading your own Oura data. Clone this repository, create your own Oura developer application, and run the connector on your computer with your own credentials. The maintainer provides the code; there is no shared developer app, hosted account, or maintainer-operated data service.
+**Fetch your Oura data through MCP or a local HTTP API.**
 
-Retrieve a day, a date range, a collection, or one record through six MCP tools or an optional HTTP API. Both interfaces use the same Python service.
+Retrieve sleep, readiness, activity, and other available records by day, date range, or record ID. Runs on your computer using your own Oura developer application.
 
-The connector retrieves Oura's measurements and scores. It adds readable names and units, preserves separate sleep periods, and reports missing or incomplete data. There is no analytics, coaching, weekly comparison, Sheets integration, or background sync.
+[Get started](docs/guides/setup.md) · [MCP guide](docs/guides/mcp.md) · [HTTP API guide](docs/guides/http-api.md) · [All documentation](docs/README.md)
+
+## What you can fetch
+
+| Request | Example |
+| --- | --- |
+| A day | Sleep and readiness for September 27 |
+| A date range | Daily records for the last seven days |
+| A collection | Workouts, heart rate, tags, or other available data |
+| A record | One sleep period or workout by its Oura ID |
+
+Choose readable `compact` output or `source` output with the original fields. Scores come from Oura; sleep periods stay separate. Responses report missing data and incomplete retrievals. Availability depends on your account and granted permissions.
 
 ## Quick start
 
-Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/). Verified on Windows x64 with Python 3.12.
+Requires **Python 3.11+**, [uv](https://docs.astral.sh/uv/getting-started/installation/), and an Oura account with API access. Verified on Windows x64 with Python 3.12; other platforms are not yet verified.
 
 ```powershell
 git clone https://github.com/whuang214/oura-connector.git
 cd oura-connector
 uv sync --locked
-uv run oura-connector ui
+uv run --locked oura-connector ui
 ```
 
-Create an [Oura OAuth application](https://developer.ouraring.com/applications) first. Follow the [portal field guide](docs/app-registration.md) for the name, description, policy URLs, permissions, and screenshots. Register `http://localhost:8765/callback` as its redirect URI. The window asks for your client ID and secret once, then opens Oura in your browser. Your Oura password stays on Oura's website. Windows encrypts the saved credentials for your account.
+1. Create your own app in the [Oura developer portal](https://developer.ouraring.com/applications). The [setup guide](docs/guides/setup.md#create-your-developer-app) explains every field.
+2. Register `http://localhost:8765/callback`, enter your app's client ID and secret in Oura Connect, and approve access in your browser.
+3. Choose MCP or HTTP below. They use the same saved sign-in.
 
-Settings and credentials live outside the repository, under `%LOCALAPPDATA%/oura-connector` on Windows or `$XDG_CONFIG_HOME/oura-connector` (default `~/.config/oura-connector`) elsewhere. The connector does not read `.env` files.
+Your Oura password stays on Oura's website. Credentials are stored locally; each user creates their own developer app. Prefer a terminal? Use the [CLI login instructions](docs/guides/setup.md#terminal-login).
 
-Every person running a copy registers their own developer app and uses their own contact details. Never request, share, or reuse the maintainer's client secret. See [Self-hosting responsibilities](docs/self-hosting.md), [Privacy Policy](PRIVACY.md), and [Terms of Service](TERMS.md). Software rights are governed by the [MIT license](LICENSE), including its warranty and liability disclaimer. This is a community project, with no support or availability guarantee.
+## Use MCP
 
-## Oura Connect window
-
-| First-time setup | Saved connection |
-| --- | --- |
-| ![Synthetic setup preview](docs/login-preview.png) | ![Synthetic saved connection preview](docs/connection-preview.png) |
-
-Close the window to keep your sign-in. Reopen it to see the saved connection, check Oura access, or disconnect locally. Disconnect removes this app's OAuth tokens; your Oura data and app setup remain. Screenshots use synthetic details.
-
-Create a desktop shortcut on Windows:
-
-```powershell
-pwsh -NoProfile -File scripts/create-shortcut.ps1
-```
-
-The shortcut opens **Oura Connect** without a terminal window. The CLI setup/login commands remain available. Complete app setup before starting your MCP client; restart it after changing app credentials.
-
-## Connect an MCP client
-
-Add a local stdio server using your client's supported MCP configuration:
+Add this to a client that supports local stdio MCP servers. Replace the checkout path with your own:
 
 ```json
 {
@@ -54,39 +49,60 @@ Add a local stdio server using your client's supported MCP configuration:
 }
 ```
 
-Replace the directory with your checkout. No HTTP server is needed. If your client cannot find uv, use its absolute executable path.
+For example, ask your client to fetch sleep and readiness for `2026-09-27`. The `oura_get_day` tool accepts:
 
-| Tool | Purpose |
+```json
+{"date": "2026-09-27", "include": ["sleep", "readiness"]}
+```
+
+[Tool reference and more examples](docs/guides/mcp.md)
+
+## Use the HTTP API
+
+Start the local server:
+
+```powershell
+uv run --locked oura-connector serve
+```
+
+In a second terminal, from the checkout:
+
+```powershell
+uv run --locked python examples/http-day.py 2026-09-27 --include sleep --include readiness
+```
+
+This sends `GET /days/2026-09-27?include=sleep&include=readiness` to the configured loopback server. The example loads your local bearer token without printing it. It prints returned records, which may contain personal data.
+
+[Authentication, endpoints, and request examples](docs/guides/http-api.md)
+
+## Readable results
+
+A synthetic compact sleep-record excerpt:
+
+```json
+{
+  "id": "example-sleep",
+  "day": "2026-09-27",
+  "type": "long_sleep",
+  "total_sleep_seconds": 27000,
+  "total_sleep_display": "7h 30m",
+  "units": {"total_sleep_seconds": "seconds"}
+}
+```
+
+The full response also includes retrieval status and completeness. [Understand dates, sleep, and output formats](docs/reference/data.md).
+
+## Documentation
+
+| I want to… | Read |
 | --- | --- |
-| `oura_get_day` | One explicit Oura date, with selectable sections |
-| `oura_get_days` | Up to 31 inclusive dates, with no aggregation |
-| `oura_get_records` | A collection with bounded, resumable pagination |
-| `oura_get_record` | One source record by ID |
-| `oura_resources` | Resource names, filters, fields, units, and known scopes |
-| `oura_status` | Local date, timezone, and sanitized credential status |
+| Install and connect my account | [Setup](docs/guides/setup.md) |
+| Connect an MCP client | [MCP](docs/guides/mcp.md) |
+| Call endpoints from a script | [HTTP API](docs/guides/http-api.md) |
+| Change fields, timezone, or limits | [Configuration](docs/reference/configuration.md) |
+| Fix a connection or missing result | [Troubleshooting](docs/guides/troubleshooting.md) |
+| Understand or contribute code | [Contributing](CONTRIBUTING.md) · [Architecture](docs/development/architecture.md) |
 
-Example arguments: `{"date":"2026-09-27","include":["sleep","readiness"]}`. Default sections are sleep, readiness, activity, stress, and SpO2. Use `"format":"source"` for full upstream records.
+## Project information
 
-## Optional HTTP API
-
-```powershell
-uv run oura-connector serve
-```
-
-The API listens on `127.0.0.1:8766`. `/health` reports process liveness; other routes require `Authorization: Bearer <http_token>`. Setup generates that token in protected `credentials.json`. Keep it in your HTTP client's secret storage. Browser-origin requests are rejected.
-
-## Customize and develop
-
-Edit your non-secret `config.toml`; see [example settings](examples/config.toml). Change default sections, compact source-field selection, timezone, or operational limits.
-
-```powershell
-uv sync --locked --extra dev
-uv run --locked pytest
-uv run --locked ruff check .
-uv run --locked mypy
-uv build
-```
-
-[Setup and security](docs/setup.md) · [Data and sleep behavior](docs/data.md) · [Architecture and development](docs/development.md) · [Approved design](docs/design.md)
-
-Tests use synthetic data and mock Oura responses. Live account verification is a separate step. The connector adds no hosted service fee; Oura controls account/device eligibility and API access.
+Independent community software, provided under the [MIT license](LICENSE). Each person operates their own copy. [Privacy Policy](PRIVACY.md) · [Terms of Service](TERMS.md).

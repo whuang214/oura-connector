@@ -50,7 +50,7 @@ class Query(BaseModel):
                 raise ValueError("Date ranges must cover 1–90 inclusive days")
             # These four timestamp-backed collections use an exclusive upper
             # date. Keep the public range inclusive and filter by source day.
-            # See docs/data.md for evidence and the outstanding live check.
+            # See docs/reference/data.md for evidence and the outstanding live check.
             if spec.exclusive_end:
                 if end == date.max:
                     raise ValueError("end_date is too large for the upstream interval")

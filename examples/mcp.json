@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "oura": {
+      "command": "uv",
+      "args": ["run", "--locked", "--directory", "C:/path/to/oura-connector", "oura-connector", "mcp"]
+    }
+  }
+}
