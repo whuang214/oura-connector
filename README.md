@@ -1,6 +1,8 @@
 # Oura Connector
 
-Pull your Oura data locally through six MCP tools or an optional HTTP API. Ask for a day, a date range, a collection, or one record. Both interfaces use the same Python service.
+Self-hosted, open-source software for reading your own Oura data. Clone this repository, create your own Oura developer application, and run the connector on your computer with your own credentials. The maintainer provides the code; there is no shared developer app, hosted account, or maintainer-operated data service.
+
+Retrieve a day, a date range, a collection, or one record through six MCP tools or an optional HTTP API. Both interfaces use the same Python service.
 
 The connector retrieves Oura's measurements and scores. It adds readable names and units, preserves separate sleep periods, and reports missing or incomplete data. There is no analytics, coaching, weekly comparison, Sheets integration, or background sync.
 
@@ -9,6 +11,8 @@ The connector retrieves Oura's measurements and scores. It adds readable names a
 Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/). Verified on Windows x64 with Python 3.12.
 
 ```powershell
+git clone https://github.com/whuang214/oura-connector.git
+cd oura-connector
 uv sync --locked
 uv run oura-connector ui
 ```
@@ -16,6 +20,8 @@ uv run oura-connector ui
 Create an [Oura OAuth application](https://developer.ouraring.com/applications) first. Follow the [portal field guide](docs/app-registration.md) for the name, description, policy URLs, permissions, and screenshots. Register `http://localhost:8765/callback` as its redirect URI. The window asks for your client ID and secret once, then opens Oura in your browser. Your Oura password stays on Oura's website. Windows encrypts the saved credentials for your account.
 
 Settings and credentials live outside the repository, under `%LOCALAPPDATA%/oura-connector` on Windows or `$XDG_CONFIG_HOME/oura-connector` (default `~/.config/oura-connector`) elsewhere. The connector does not read `.env` files.
+
+Every person running a copy registers their own developer app and uses their own contact details. Never request, share, or reuse the maintainer's client secret. See [Self-hosting responsibilities](docs/self-hosting.md), [Privacy Policy](PRIVACY.md), and [Terms of Service](TERMS.md). Software rights are governed by the [MIT license](LICENSE), including its warranty and liability disclaimer. This is a community project, with no support or availability guarantee.
 
 ## Oura Connect window
 

@@ -97,3 +97,11 @@ New evidence changes the earlier MCP design assumptions: the current Oura API an
 The user asked to rebase, keep the existing Oura Connector name, and continue the personal-use implementation without the proposed redesign. Fetched origin and rebased overhaul onto origin/main; Git reported it was already up to date. Updated the registration display name and policy text, switched proposed URLs to blob/main, removed repeated provider warnings from onboarding, and refreshed policy previews. The provider agreement link remains in Terms and references; this records the user's chosen scope without asserting an exemption or provider approval.
 
 Planned delivery: audit documentation links and previews, commit this documentation-only wave, then fast-forward local main to the reviewed overhaul work. Publishing requires explicit push authorization under the user's Global Working Rules. No force push or remote history rewrite is needed.
+
+## Self-hosted distribution and public policies — September 28
+
+User directed the project to be framed as software people clone and operate using their own developer applications, requested policies clarifying responsibilities, and authorized publishing to main and verifying real URLs. Earlier local main fast-forward completed at 3b39866. Keep Oura Connector naming and MIT licensing. No hosted/shared OAuth service, legal immunity claim, or additional license conditions are introduced.
+
+Audited plan: align README, registration/setup, and policy scope with the actual local implementation; add a short operator-responsibility guide; retain MIT disclaimers and mandatory-rights limitations; refresh policy previews; check links and diff; commit; publish main with a normal push; verify remote commit and unauthenticated public policy contents. The user's request to main follows the explicit push question and authorizes that publication. Scope includes repository description to match the new framing.
+
+Policy text is a software-use notice and factual privacy description, not a claim that the maintainer operates others' copies. Changed or hosted deployments need their own accurate disclosures. Enforceability is not verified; jurisdiction-specific legal review remains appropriate for a legal risk assessment. No runtime behavior, dependencies, user credentials, or provider registrations change in this wave.

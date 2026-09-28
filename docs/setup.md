@@ -2,9 +2,11 @@
 
 Install uv using its [official platform instructions](https://docs.astral.sh/uv/getting-started/installation/). Use a native Python runtime for your platform; this project is tested with Windows x64 Python 3.12. Run `uv sync --locked` in the checkout.
 
+This is a self-hosted setup: clone the repository and create your own Oura developer application. You operate your copy, supply your own Contact Email, and keep your credentials locally. The maintainer does not supply a shared OAuth app or manage your account. Read [Run your own copy](self-hosting.md) before registration.
+
 ## Desktop login
 
-First, follow [Create your developer application](app-registration.md). It lists every field in the current portal, explains the two policy URLs, and includes portal, login, and policy screenshots. Publish the policy documents at public URLs before using those URLs in registration. A local file or an unpublished branch is not a public policy page.
+First, follow [Create your developer application](app-registration.md). It lists every field in the current portal, explains the two policy URLs, and includes portal, login, and policy screenshots. Modified or hosted deployments need public policies describing their own behavior. A local file or an unpublished branch is not a public policy page.
 
 Run `uv run oura-connector ui`, or open the **Oura Connect** desktop shortcut. The first screen has an Oura developer-portal link, a button to copy the exact callback URL, masked client-secret entry, and timezone selection. Save and connect once; future launches restore the saved connection view.
 

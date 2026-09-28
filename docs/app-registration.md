@@ -2,6 +2,8 @@
 
 Open [Oura's developer portal](https://developer.ouraring.com/applications) and choose New Application. This guide matches the blank form supplied on September 28, 2026.
 
+Every person running a copy creates their own developer application. Use your own contact email and credentials; there is no shared project OAuth app. See [Run your own copy](self-hosting.md) for the operator model and policy guidance.
+
 ## What to enter
 
 | Portal field | Value |
@@ -10,8 +12,8 @@ Open [Oura's developer portal](https://developer.ouraring.com/applications) and 
 | Description | `A local, read-only app that retrieves my authorized ring data on request and presents it in a readable format. No hosted backend or persistent health-data cache.` |
 | Contact Email | Your own monitored email address. This is the app operator's contact, not an API credential. |
 | Website | `https://github.com/whuang214/oura-connector` |
-| Privacy Policy | Public URL of this repository's [PRIVACY.md](../PRIVACY.md), once published; see below. |
-| Terms of Service | Public URL of this repository's [TERMS.md](../TERMS.md), once published; see below. |
+| Privacy Policy | Public URL of the [Privacy Policy](../PRIVACY.md) that accurately describes your installation; see below. |
+| Terms of Service | Public URL of the [Terms of Service](../TERMS.md) appropriate to your installation; see below. |
 | Redirect URIs | `http://localhost:8765/callback` |
 
 Use the existing Oura Connector name; the repository remains oura-connector. Keep the description accurate if you modify or host the software. Do not describe this project as an official Oura integration.
@@ -22,24 +24,24 @@ Use the existing Oura Connector name; the repository remains oura-connector. Kee
 
 Privacy explains data handling. Terms explains permitted use, availability, and software conditions. Neither field takes pasted policy text: both take an accessible page URL. The project policies describe this local software; do not substitute Oura's privacy policy for your app's policy.
 
-Use these stable policy URLs after publishing the updated `main` branch:
+The upstream project's stable public policy URLs are:
 
 ```text
 https://github.com/whuang214/oura-connector/blob/main/PRIVACY.md
 https://github.com/whuang214/oura-connector/blob/main/TERMS.md
 ```
 
-These edits are local until pushed. Do not submit the proposed URLs while they are missing, private, or showing older text. Open each while signed out and confirm the intended document is visible. Oura's acceptance of GitHub document URLs has not been verified; if the portal rejects them, publish equivalent public pages. A local screenshot or localhost policy page is not a replacement for a public policy URL.
+Open each while signed out and confirm the intended document is visible. These describe the upstream software, not a service operated for you by the maintainer. Use them only if they accurately describe your unchanged local setup; publish your own policies for different behavior. Oura's acceptance of GitHub document URLs has not been verified; if the portal rejects them, publish equivalent public pages. A local screenshot or localhost policy page is not a replacement for a public policy URL.
 
-For a fork or a different operator, use that operator's website, contact email, and policy URLs, and adjust the policy text to the actual deployment.
+For a fork or a hosted/modified deployment, use that operator's website, contact email, and policy URLs, and adjust the policy text to the actual deployment. Your own developer registration always uses your own contact email, even when running unmodified upstream code.
 
 ### Privacy Policy preview
 
-![Rendered local Privacy Policy, not a published page](screenshots/privacy-policy.png)
+![Rendered Privacy Policy document preview](screenshots/privacy-policy.png)
 
 ### Terms of Service preview
 
-![Rendered local Terms of Service, not a published page](screenshots/terms-of-service.png)
+![Rendered Terms of Service document preview](screenshots/terms-of-service.png)
 
 ## Permissions
 
