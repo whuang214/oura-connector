@@ -22,7 +22,7 @@ INK = "#17243B"
 MUTED = "#54657B"
 CARD = "#F2F6FC"
 GREEN = "#167044"
-PORTAL = "https://cloud.ouraring.com/oauth/applications"
+PORTAL = "https://developer.ouraring.com/applications"
 
 
 class ConnectWindow:

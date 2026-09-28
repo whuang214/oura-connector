@@ -4,6 +4,8 @@ Install uv using its [official platform instructions](https://docs.astral.sh/uv/
 
 ## Desktop login
 
+First, follow [Create your developer application](app-registration.md). It lists every field in the current portal, explains the two policy URLs, and includes portal, login, and policy screenshots. Publish the policy documents at public URLs before using those URLs in registration. A local file or an unpublished branch is not a public policy page.
+
 Run `uv run oura-connector ui`, or open the **Oura Connect** desktop shortcut. The first screen has an Oura developer-portal link, a button to copy the exact callback URL, masked client-secret entry, and timezone selection. Save and connect once; future launches restore the saved connection view.
 
 Oura authentication happens only in the browser. The app never asks for or stores your Oura password. Its worker keeps the window responsive during sign-in. Cancel stops waiting; closing during an operation waits for it to finish safely. The saved view distinguishes stored credentials from a successful live connection check.
@@ -14,7 +16,7 @@ Windows uses DPAPI CurrentUser encryption plus restrictive file permissions for 
 
 ## Oura authorization from the CLI
 
-1. Create an application in the [Oura developer portal](https://cloud.ouraring.com/oauth/applications).
+1. Create an application in the [Oura developer portal](https://developer.ouraring.com/applications), using the [field-by-field instructions](app-registration.md).
 2. Register the exact redirect URI `http://localhost:8765/callback`.
 3. Run `uv run oura-connector setup --timezone America/New_York`. Enter the client ID and secret when prompted. Neither is placed in a command-line argument by default.
 4. Run `uv run oura-connector login`. Approve access in the browser. The local listener waits up to three minutes.
@@ -39,6 +41,8 @@ Use `uv run oura-connector --config C:/path/to/config.toml status` for another l
 Setup refuses to overwrite existing configuration or credentials. Edit non-secret settings in `config.toml`. After changing OAuth applications, disconnect locally, then enter the new details in the desktop app and connect again. Restart existing MCP/HTTP processes after changing application settings. The connector does not import old settings, read `.env`, or migrate/delete existing credentials.
 
 ## MCP and HTTP
+
+See the [current provider restriction](app-registration.md#current-provider-restriction) before using real API data in an AI client. The custom local MCP server has not been approved by Oura. Local HTTP retrieval and AI use are different use cases under the provider agreement.
 
 The MCP command is `uv run --locked oura-connector mcp`. It reserves stdout for protocol traffic and starts no API subprocess. Configure it as a local stdio server; see the root README.
 

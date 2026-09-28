@@ -13,7 +13,7 @@ uv sync --locked
 uv run oura-connector ui
 ```
 
-Create an [Oura OAuth application](https://cloud.ouraring.com/oauth/applications) first. Register `http://localhost:8765/callback` as its redirect URI. The window asks for your client ID and secret once, then opens Oura in your browser. Your Oura password stays on Oura's website. Windows encrypts the saved credentials for your account.
+Create an [Oura OAuth application](https://developer.ouraring.com/applications) first. Follow the [portal field guide](docs/app-registration.md) for the name, description, policy URLs, permissions, and screenshots. Register `http://localhost:8765/callback` as its redirect URI. The window asks for your client ID and secret once, then opens Oura in your browser. Your Oura password stays on Oura's website. Windows encrypts the saved credentials for your account.
 
 Settings and credentials live outside the repository, under `%LOCALAPPDATA%/oura-connector` on Windows or `$XDG_CONFIG_HOME/oura-connector` (default `~/.config/oura-connector`) elsewhere. The connector does not read `.env` files.
 
@@ -34,6 +34,8 @@ pwsh -NoProfile -File scripts/create-shortcut.ps1
 The shortcut opens **Oura Connect** without a terminal window. The CLI setup/login commands remain available. Complete app setup before starting your MCP client; restart it after changing app credentials.
 
 ## Connect an MCP client
+
+Before connecting real data to an AI client, read the [current provider restriction](docs/app-registration.md#current-provider-restriction). This local implementation is not Oura's official MCP server; its existence does not establish permission to send API data to an AI model.
 
 Add a local stdio server using your client's supported MCP configuration:
 
