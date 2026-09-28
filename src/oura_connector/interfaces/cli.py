@@ -11,8 +11,10 @@ import socket
 import sys
 import time
 import webbrowser
+from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
+from threading import Event
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from ..auth import (
@@ -56,7 +58,9 @@ def setup(path: Path, client_id: str | None, timezone: str) -> None:
     print(f"Saved {path}. Credentials are protected beside it. Run login next.")
 
 
-def browser_callback(settings: Settings) -> OAuthCallback:
+def browser_callback(
+    settings: Settings, *, cancel: Event | None = None, on_url: Callable[[str], None] | None = None
+) -> OAuthCallback:
     """Bind before opening the browser, reject forged callbacks, and never log URLs."""
     parsed = validate_redirect_uri(settings.redirect_uri, require_localhost=True)
     if parsed.scheme != "http":
@@ -103,10 +107,13 @@ def browser_callback(settings: Settings) -> OAuthCallback:
             url = OAuthClient(settings).authorization_url(
                 state=session.state, code_challenge=code_challenge_for(session.code_verifier)
             )
-            print("Opening Oura authorization. If the browser does not open, visit:\n" + url, file=sys.stderr)
+            if on_url is None:
+                print("Opening Oura authorization. If the browser does not open, visit:\n" + url, file=sys.stderr)
+            else:
+                on_url(url)
             webbrowser.open(url)
             deadline = time.monotonic() + 180
-            while callback is None and not denied and time.monotonic() < deadline:
+            while callback is None and not denied and time.monotonic() < deadline and not (cancel and cancel.is_set()):
                 server.handle_request()
     finally:
         if created_session:
@@ -158,10 +165,16 @@ def main() -> None:
     doctor.add_argument("--live", action="store_true", help="Probe today's daily_sleep without printing health data")
     commands.add_parser("mcp", help="Run the six-tool stdio MCP server")
     commands.add_parser("serve", help="Run the authenticated loopback HTTP API")
+    commands.add_parser("ui", help="Open the Oura Connect desktop login window")
     args = parser.parse_args()
     try:
         if args.command == "setup":
             setup(args.config or config_directory() / "config.toml", args.client_id, args.timezone)
+            return
+        if args.command == "ui":
+            from .desktop import run_ui
+
+            run_ui(args.config or config_directory() / "config.toml")
             return
         settings = load_settings(args.config)
         if args.command == "login":

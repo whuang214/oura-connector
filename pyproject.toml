@@ -25,6 +25,7 @@ dependencies = [
   "mcp==1.28.1",
   "pydantic>=2.12,<3",
   "pywin32>=311; sys_platform == 'win32'",
+  "tomli-w>=1.2.0",
   "tzdata>=2025.2",
   "uvicorn==0.51.0",
 ]
@@ -43,6 +44,7 @@ oura-connector = "oura_connector.interfaces.cli:main"
 [project.optional-dependencies]
 dev = [
   "mypy>=1.16,<2",
+  "pillow>=12,<13",
   "pytest>=9.0.3,<10",
   "pytest-cov>=6.2,<7",
   "ruff>=0.12,<1",
@@ -103,5 +105,5 @@ strict = true
 warn_unreachable = true
 
 [[tool.mypy.overrides]]
-module = ["ntsecuritycon", "win32api", "win32con", "win32security"]
+module = ["ntsecuritycon", "win32api", "win32con", "win32security", "win32crypt", "win32event", "win32gui"]
 ignore_missing_imports = true

@@ -68,3 +68,15 @@ Known limits and follow-up:
 - Working branch: overhaul. Earlier passing implementation commits: 7501a19 (foundation), f5a9637 (retrieval), cf3c01e (days/formatting), 7ac26a5 (interfaces). Final cleanup/audit commit: c11e35f. Nothing pushed.
 
 The user's September 28 approval covers future Python libraries for this work. No further implementation blocker remains; live account access is a user setup step, not a completed verification claim.
+
+
+## Desktop login extension — September 28
+
+User requested a nice local login UI like their Bitwarden Connect app. Inspected its public source and synthetic screenshots read-only. Adopted the native light-window flow, saved-connection dashboard, and CurrentUser DPAPI storage. No Oura password is handled; app credentials are entered once and user consent stays on Oura's website.
+
+Implementation plan: add encrypted protected storage, reuse browser state/PKCE and refresh locking, add a thin desktop controller/window, add a hidden-console launcher/shortcut, verify synthetic UI and security flows, inspect previews, run full checks and commit locally. Python dependency approval already covers Tomli-W (settings writer) and development-only Pillow (preview capture). No changes to Bitwarden.
+
+Navigation used source inspection because Graphify/Serena MCP query tools remain unavailable. The existing graph was not relied on after source changes.
+
+
+Desktop extension verified: 72 tests passed with 81.74% coverage; Ruff and strict mypy passed; wheel and source distribution built. Synthetic setup and saved-connection previews were rendered and visually inspected. A hidden PowerShell launcher produced a visible window using an isolated nonexistent profile; closing exited cleanly without creating credentials. Fixed a UI test harness issue by sharing one Tcl interpreter, plus first-layout footer clipping and error recovery after a declined browser grant. No production account was used for tests. Existing SDK annotation warning remains unchanged. Final delivery includes a desktop shortcut and opening the real setup window for the user; entering app details and approving Oura remain user actions. No push.

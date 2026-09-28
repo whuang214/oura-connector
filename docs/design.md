@@ -204,3 +204,8 @@ Current task: implement the approved day-first tool surface and sleep behavior. 
 Accepted: day bundles with the listed default sections, source-assigned dates, and separate sleep periods without calculated daily totals. Destination repository is whuang214/oura-connector, renamed by the user from oura-data-api. Python dependencies were subsequently approved by the user. No extra analytics are implied by formatting or grouping.
 
 Resume from this document. Preserve the accepted single-package, retrieval-only direction; do not restart comparison shopping or reintroduce the removed features.
+
+
+## 12. Desktop connection extension
+
+On September 28, the user requested a login UI like their Bitwarden Connect app, with local saving. Oura Connect adds a native desktop window for first-time OAuth app details, browser consent, saved-connection status, connection checks, and local disconnect. It uses the same core auth and data code. Windows saves are encrypted with DPAPI CurrentUser in addition to restrictive permissions. No Oura password is handled and no health dashboard or analytics were added. Closing preserves sign-in; disconnect removes the local OAuth token file and keeps app configuration. First app setup or credential changes require restarting any already-running MCP/HTTP process.

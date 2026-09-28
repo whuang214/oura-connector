@@ -10,14 +10,28 @@ Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/). Verified on Windows 
 
 ```powershell
 uv sync --locked
-uv run oura-connector setup --timezone America/New_York
-uv run oura-connector login
-uv run oura-connector doctor --live
+uv run oura-connector ui
 ```
 
-Create an [Oura OAuth application](https://cloud.ouraring.com/oauth/applications) first. Register `http://localhost:8765/callback` as its redirect URI. Setup asks for your client ID and hides the client-secret input. Login opens Oura in your browser.
+Create an [Oura OAuth application](https://cloud.ouraring.com/oauth/applications) first. Register `http://localhost:8765/callback` as its redirect URI. The window asks for your client ID and secret once, then opens Oura in your browser. Your Oura password stays on Oura's website. Windows encrypts the saved credentials for your account.
 
 Settings and credentials live outside the repository, under `%LOCALAPPDATA%/oura-connector` on Windows or `$XDG_CONFIG_HOME/oura-connector` (default `~/.config/oura-connector`) elsewhere. The connector does not read `.env` files.
+
+## Oura Connect window
+
+| First-time setup | Saved connection |
+| --- | --- |
+| ![Synthetic setup preview](docs/login-preview.png) | ![Synthetic saved connection preview](docs/connection-preview.png) |
+
+Close the window to keep your sign-in. Reopen it to see the saved connection, check Oura access, or disconnect locally. Disconnect removes this app's OAuth tokens; your Oura data and app setup remain. Screenshots use synthetic details.
+
+Create a desktop shortcut on Windows:
+
+```powershell
+pwsh -NoProfile -File scripts/create-shortcut.ps1
+```
+
+The shortcut opens **Oura Connect** without a terminal window. The CLI setup/login commands remain available. Complete app setup before starting your MCP client; restart it after changing app credentials.
 
 ## Connect an MCP client
 

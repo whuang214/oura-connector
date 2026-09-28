@@ -68,7 +68,7 @@ def load_settings(path: Path | None = None) -> Settings:
 
     path = path or config_directory() / "config.toml"
     # Avoid a user accidentally pointing --config at a secret environment file.
-    if path.suffix.lower() != ".toml":
+    if path.suffix.lower() != ".toml" or path.name.startswith(".env"):
         raise ConfigurationError("Configuration must be a TOML file")
     values: dict[str, Any] = {}
     try:

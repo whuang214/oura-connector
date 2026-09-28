@@ -261,6 +261,19 @@ def _ensure_parent(path: Path) -> None:
 
 
 def _write_secure_json(path: Path, payload: dict[str, Any]) -> None:
+    if os.name == "nt":
+        try:
+            import win32crypt
+
+            encrypted = win32crypt.CryptProtectData(
+                json.dumps(payload).encode("utf-8"), "Oura Connector", None, None, None, 1
+            )
+            payload = {
+                "protection": "windows-dpapi-current-user",
+                "ciphertext": base64.b64encode(encrypted).decode("ascii"),
+            }
+        except Exception:
+            raise TokenStoreError("Windows could not encrypt the local credentials") from None
     _ensure_parent(path)
     descriptor: int | None = None
     temporary_path: Path | None = None
@@ -297,7 +310,7 @@ def _write_secure_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def write_protected_json(path: Path, payload: dict[str, Any]) -> None:
-    """Atomically write JSON after applying a user-and-SYSTEM-only DACL."""
+    """Atomic protected storage; Windows also encrypts with CurrentUser DPAPI."""
 
     _write_secure_json(path, payload)
 
@@ -328,6 +341,20 @@ def read_protected_json(path: Path) -> dict[str, Any]:
                 pass
     if not isinstance(payload, dict):
         raise TokenStoreError("The OAuth token store is unreadable or invalid")
+    if "protection" in payload:
+        try:
+            if os.name != "nt" or payload["protection"] != "windows-dpapi-current-user":
+                raise ValueError()
+            import win32crypt
+
+            encrypted = base64.b64decode(payload["ciphertext"], validate=True)
+            _, plaintext = win32crypt.CryptUnprotectData(encrypted, None, None, None, 1)
+            decoded = json.loads(plaintext)
+            if not isinstance(decoded, dict):
+                raise ValueError()
+            return cast(dict[str, Any], decoded)
+        except Exception:
+            raise TokenStoreError("Windows could not decrypt the saved credentials for this account") from None
     return payload
 
 
