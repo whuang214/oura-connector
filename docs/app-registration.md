@@ -6,7 +6,7 @@ Open [Oura's developer portal](https://developer.ouraring.com/applications) and 
 
 | Portal field | Value |
 | --- | --- |
-| Display Name | `Personal Ring Connector` |
+| Display Name | `Oura Connector` |
 | Description | `A local, read-only app that retrieves my authorized ring data on request and presents it in a readable format. No hosted backend or persistent health-data cache.` |
 | Contact Email | Your own monitored email address. This is the app operator's contact, not an API credential. |
 | Website | `https://github.com/whuang214/oura-connector` |
@@ -14,7 +14,7 @@ Open [Oura's developer portal](https://developer.ouraring.com/applications) and 
 | Terms of Service | Public URL of this repository's [TERMS.md](../TERMS.md), once published; see below. |
 | Redirect URIs | `http://localhost:8765/callback` |
 
-The display name is a suggestion for registration, not a repository rename. Keep the description accurate if you modify or host the software. Do not describe this project as an official Oura integration.
+Use the existing Oura Connector name; the repository remains oura-connector. Keep the description accurate if you modify or host the software. Do not describe this project as an official Oura integration.
 
 ![Oura New Application form supplied by the user; no credentials](screenshots/oura-new-application.png)
 
@@ -22,14 +22,14 @@ The display name is a suggestion for registration, not a repository rename. Keep
 
 Privacy explains data handling. Terms explains permitted use, availability, and software conditions. Neither field takes pasted policy text: both take an accessible page URL. The project policies describe this local software; do not substitute Oura's privacy policy for your app's policy.
 
-After publishing the current `overhaul` branch to a publicly readable repository, the proposed URLs are:
+Use these stable policy URLs after publishing the updated `main` branch:
 
 ```text
-https://github.com/whuang214/oura-connector/blob/overhaul/PRIVACY.md
-https://github.com/whuang214/oura-connector/blob/overhaul/TERMS.md
+https://github.com/whuang214/oura-connector/blob/main/PRIVACY.md
+https://github.com/whuang214/oura-connector/blob/main/TERMS.md
 ```
 
-These edits are local until pushed. Do not submit the proposed URLs while they are missing, private, or showing older text. Open each while signed out and confirm the intended document is visible. Oura's acceptance of GitHub document URLs has not been verified; if the portal rejects them, publish equivalent public pages. After merging to `main`, update registration to stable `blob/main/...` URLs. A local screenshot or localhost policy page is not a replacement for a public policy URL.
+These edits are local until pushed. Do not submit the proposed URLs while they are missing, private, or showing older text. Open each while signed out and confirm the intended document is visible. Oura's acceptance of GitHub document URLs has not been verified; if the portal rejects them, publish equivalent public pages. A local screenshot or localhost policy page is not a replacement for a public policy URL.
 
 For a fork or a different operator, use that operator's website, contact email, and policy URLs, and adjust the policy text to the actual deployment.
 
@@ -59,10 +59,6 @@ The callback URL must match exactly, including `localhost`, port, and `/callback
 
 After sign-in, **Check connection** verifies one daily-sleep request. It does not prove every resource permission works. Closing preserves sign-in; **Disconnect** removes local OAuth tokens. The [detailed setup guide](setup.md) covers storage, revocation, CLI, and troubleshooting.
 
-## Current provider restriction
+## References
 
-Reviewed September 28, 2026: Oura's [API and MCP Agreement](https://cloud.ouraring.com/legal/api-agreement), effective June 8, 2026, section 4(d), restricts providing API-derived data to AI models and directs eligible AI use through Oura's own MCP server. Section 6(e) also restricts Oura branding in application names. The suggested neutral display name addresses registration only; the existing repo/UI names have not been changed.
-
-This materially affects the originally planned custom API-to-AI MCP path. Do not treat it as approved under the current agreement. Resolving that path with Oura or changing the architecture is an outstanding design decision; this documentation update does not resolve it. The policies describe the implementation and do not certify legal compliance or app approval.
-
-Sources: the supplied portal screenshot; [official OAuth documentation](https://cloud.ouraring.com/docs/authentication); the agreement linked above. Portal UI and documentation can differ. The developer-portal link has changed; the documented OAuth authorization and token endpoints remain separate and were not changed by this update.
+Sources: the supplied portal screenshot; [official OAuth documentation](https://cloud.ouraring.com/docs/authentication); [Oura API and MCP Agreement](https://cloud.ouraring.com/legal/api-agreement). Portal UI and documentation can differ. The developer-portal link has changed; the documented OAuth authorization and token endpoints remain separate and were not changed by this update.

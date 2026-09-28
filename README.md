@@ -35,8 +35,6 @@ The shortcut opens **Oura Connect** without a terminal window. The CLI setup/log
 
 ## Connect an MCP client
 
-Before connecting real data to an AI client, read the [current provider restriction](docs/app-registration.md#current-provider-restriction). This local implementation is not Oura's official MCP server; its existence does not establish permission to send API data to an AI model.
-
 Add a local stdio server using your client's supported MCP configuration:
 
 ```json

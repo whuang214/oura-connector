@@ -90,3 +90,10 @@ Completed: expanded PRIVACY.md and TERMS.md, added docs/app-registration.md with
 Verification: 10 desktop/CLI tests passed; Ruff and strict mypy passed. Both full-page policy screenshots were inspected for readable, complete content. Relative documentation links and diff whitespace were checked before commit. Remote publication and Oura's acceptance of GitHub policy URLs remain unverified.
 
 New evidence changes the earlier MCP design assumptions: the current Oura API and MCP Agreement (effective June 8, 2026), section 4(d), restricts API-to-AI data use, and section 6(e) restricts application branding. Documented this in the user setup path rather than presenting the existing custom MCP path as approved. Proposed a neutral portal display name only; no package/UI rename or architecture change. Resolving the intended AI integration with Oura's current terms is the next unresolved design decision. The portal also exposes three permission labels absent from the eight-scope OAuth reference; exact new identifiers and live coverage remain unverified.
+
+
+## Stable policy links and naming — September 28
+
+The user asked to rebase, keep the existing Oura Connector name, and continue the personal-use implementation without the proposed redesign. Fetched origin and rebased overhaul onto origin/main; Git reported it was already up to date. Updated the registration display name and policy text, switched proposed URLs to blob/main, removed repeated provider warnings from onboarding, and refreshed policy previews. The provider agreement link remains in Terms and references; this records the user's chosen scope without asserting an exemption or provider approval.
+
+Planned delivery: audit documentation links and previews, commit this documentation-only wave, then fast-forward local main to the reviewed overhaul work. Publishing requires explicit push authorization under the user's Global Working Rules. No force push or remote history rewrite is needed.

@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Updated September 28, 2026. Applies to the local software in the oura-connector repository, including registrations using the display name Personal Ring Connector.
+Updated September 28, 2026. Applies to Oura Connector, the local software in the oura-connector repository.
 
 ## Data and purpose
 
@@ -16,7 +16,7 @@ OAuth client credentials and rotating tokens are stored in protected local files
 
 Oura receives authenticated API requests. MCP and HTTP clients receive requested records and may retain them in logs, conversations, or their own storage. Review those clients' privacy settings. Data returned by Oura can contain personal details and user-authored text.
 
-The project maintainer does not receive records through a hosted project service. You control which local clients receive output. This software does not train AI models. See the [registration guide](docs/app-registration.md#current-provider-restriction) before sending API data to any AI client.
+The project maintainer does not receive records through a hosted project service. You control which local clients receive output. This software does not train AI models.
 
 ## Retention and removal
 

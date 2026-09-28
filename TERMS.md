@@ -1,6 +1,6 @@
 # Terms of Service
 
-Updated September 28, 2026. Applies to the local software in the oura-connector repository, including registrations using the display name Personal Ring Connector.
+Updated September 28, 2026. Applies to Oura Connector, the local software in the oura-connector repository.
 
 ## Use and access
 
@@ -10,7 +10,7 @@ You manage your developer application, credentials, device, and receiving client
 
 ## Provider requirements
 
-The [Oura API and MCP Agreement](https://cloud.ouraring.com/legal/api-agreement) applies separately. These terms grant no additional rights to Oura data. Its current AI-use and naming restrictions are noted in the [registration guide](docs/app-registration.md#current-provider-restriction). This project's custom MCP server is not Oura's official MCP service.
+The [Oura API and MCP Agreement](https://cloud.ouraring.com/legal/api-agreement) applies separately. These terms grant no additional rights to Oura data. This project's custom MCP server is not Oura's official MCP service.
 
 ## Data and availability
 

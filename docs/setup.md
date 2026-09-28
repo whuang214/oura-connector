@@ -42,8 +42,6 @@ Setup refuses to overwrite existing configuration or credentials. Edit non-secre
 
 ## MCP and HTTP
 
-See the [current provider restriction](app-registration.md#current-provider-restriction) before using real API data in an AI client. The custom local MCP server has not been approved by Oura. Local HTTP retrieval and AI use are different use cases under the provider agreement.
-
 The MCP command is `uv run --locked oura-connector mcp`. It reserves stdout for protocol traffic and starts no API subprocess. Configure it as a local stdio server; see the root README.
 
 HTTP is optional: `uv run oura-connector serve`. Only loopback hosts are accepted. Every route except `/health` requires the generated bearer token. The API rejects browser-origin requests and unknown Host values, disables access logs, and marks responses `no-store`. There is no public remote-server mode or unauthenticated documentation endpoint.
