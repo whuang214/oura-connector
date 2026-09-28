@@ -1,4 +1,4 @@
-# Oura Connector — Design for review
+# Oura Connector — Approved design
 
 Updated: September 28, 2026. Status: approved for implementation; implementation tracked in implementation.md.
 
@@ -195,12 +195,12 @@ Customizable: default day sections, compact fields, display timezone, operationa
 
 Required tests: midnight/DST boundaries; overnight sleep and late naps; multiple sleep periods; null versus zero; score versus measurement fields; denied permissions; successful empty responses; partial collections; byte/page limits; token refresh races; and equivalent API/MCP results. A seven-day bundle must fetch ranges per resource, not repeat the same fetch for every date.
 
-Fixture and protocol tests come first. Live verification is separate: report precisely what ran, never claim app-value parity or live reliability based only on fixtures. Dependency installation or changes require specific approval before manifests are changed, per the user's global instructions. Real `.env` files must not be read or modified.
+Fixture and protocol tests come first. Live verification is separate: report precisely what ran, never claim app-value parity or live reliability based only on fixtures. The user subsequently approved the required and future Python libraries for this work on September 28, 2026. Real `.env` files must not be read or modified.
 
 ## 11. Review point and return path
 
 Current task: implement the approved day-first tool surface and sleep behavior. Approval is not a record of completed or verified changes.
 
-Accepted: day bundles with the listed default sections, source-assigned dates, and separate sleep periods without calculated daily totals. Destination repository is whuang214/oura-connector, renamed by the user from oura-data-api. Exact dependency changes require separate approval. No extra analytics are implied by formatting or grouping.
+Accepted: day bundles with the listed default sections, source-assigned dates, and separate sleep periods without calculated daily totals. Destination repository is whuang214/oura-connector, renamed by the user from oura-data-api. Python dependencies were subsequently approved by the user. No extra analytics are implied by formatting or grouping.
 
 Resume from this document. Preserve the accepted single-package, retrieval-only direction; do not restart comparison shopping or reintroduce the removed features.

@@ -65,6 +65,6 @@ Known limits and follow-up:
 - The official schema does not explicitly document end-date inclusivity. Primary reproduction at https://github.com/daveremy/oura-mcp/issues/5 reports exclusive upper dates on sleep/daily_activity/workout/session. The registry translates those four only and filters source days; mocks verify this, live boundary confirmation is still needed.
 - FastMCP emits one upstream pydantic-settings incomplete-annotation warning with the locked dependency set. Protocol operation passed. No warning was suppressed.
 - Windows x64 Python 3.12 was tested. Other platforms and Python versions are not claimed tested.
-- Working branch: overhaul. Earlier passing implementation commits: 7501a19 (foundation), f5a9637 (retrieval), cf3c01e (days/formatting), 7ac26a5 (interfaces). The final cleanup/audit commit follows this record. Nothing pushed.
+- Working branch: overhaul. Earlier passing implementation commits: 7501a19 (foundation), f5a9637 (retrieval), cf3c01e (days/formatting), 7ac26a5 (interfaces). Final cleanup/audit commit: c11e35f. Nothing pushed.
 
 The user's September 28 approval covers future Python libraries for this work. No further implementation blocker remains; live account access is a user setup step, not a completed verification claim.
