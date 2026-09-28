@@ -4,7 +4,7 @@
 
 The user approved docs/design.md on September 28, 2026. Destination: whuang214/oura-connector (formerly oura-data-api). Base commit: 341d0db. Branch: overhaul. Initial checkout clean. No current integrations need compatibility. Keep the old remote oura-mcp repository intact unless separately requested.
 
-Implementation is authorized. Dependency installation/addition/removal requires specific approval. Request pending: add mcp==1.28.1, retain/install the existing declared runtime/build/dev dependencies and compatible transitive dependencies from PyPI using uv with installed Windows x64 Python 3.12.13 in this project's .venv. No manifest edits or dependency installs before approval. No new runtime requested.
+Implementation is authorized. Dependency installation/addition/removal requires specific approval. User approved all Python libraries needed for this overhaul on September 28, 2026. Approved: add mcp==1.28.1, retain/install the existing declared runtime/build/dev dependencies and compatible transitive dependencies from PyPI using uv with installed Windows x64 Python 3.12.13 in this project's .venv. Approval received before manifest edits and installation. No new runtime requested.
 
 No real .env files or private state may be read, copied, modified, or indexed. Existing legacy source removal is authorized by the overhaul; remove exact reviewed tracked files individually, not by recursive deletion. Preserve Git history. No pushes or remote deletion.
 
@@ -40,4 +40,4 @@ No real .env files or private state may be read, copied, modified, or indexed. E
 
 Completed: cloned renamed repo; inspected status/history/docs/manifest/source; verified native tool route; generated ignored navigation graph; reviewed official uv and MCP setup documentation; saved approved design and audited sequence.
 
-Pending: dependency approval. Next action once approved: use official uv dependency commands, resolve and lock the local environment, and implement/verify the foundation. No application edits or runtime tests yet.
+Foundation complete: uv.lock and Python 3.12 local environment; separate TOML settings and protected credentials; reused hardened OAuth and rotation locking. Baseline: 134 passed, one obsolete documentation inventory failed and was corrected for the approved documents. New and existing tests: 163 passed. Ruff and strict mypy pass for the new foundation. Next: bounded retrieval and resource contracts. Legacy package remains temporarily during independently verified migration.

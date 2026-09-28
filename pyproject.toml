@@ -22,6 +22,7 @@ classifiers = [
 dependencies = [
   "fastapi==0.139.0",
   "httpx>=0.28.1,<1",
+  "mcp==1.28.1",
   "pydantic>=2.12,<3",
   "pywin32>=311; sys_platform == 'win32'",
   "tzdata>=2025.2",
@@ -74,6 +75,7 @@ path = "src/oura_data_api/__init__.py"
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers"
 testpaths = ["tests"]
+pythonpath = ["src"]
 
 [tool.coverage.run]
 branch = true

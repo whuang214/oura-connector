@@ -9,6 +9,8 @@ DOCS = ROOT / "docs"
 LOCAL_LINK = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 
 EXPECTED_TECHNICAL_DOCS = {
+    "design.md",
+    "implementation.md",
     "README.md",
     "01 - Setup and Authentication.md",
     "02 - System Design.md",
