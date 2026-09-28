@@ -54,6 +54,8 @@ The supplied portal screenshot also shows Stress, Heart Health, and Ring Configu
 
 ## Sign in
 
+On Windows, double-click **[Open Oura.cmd](../../Open%20Oura.cmd)** in the repository folder. It opens Oura Connect using the same local profile as the terminal command. No desktop shortcut is required. The launcher works from any working directory and uses the Windows PowerShell included with Windows; PowerShell 7 is not required.
+
 Copy your application's Client ID and Client Secret into **Oura Connect**, choose your timezone, and select **Save & connect with Oura**. Sign in and approve the intended permissions on Oura's browser page. Never share the secret in screenshots, issues, or chats.
 
 ![Synthetic Oura Connect login example](../assets/login.png)
@@ -63,10 +65,10 @@ Your Oura password stays in the browser. Credentials are saved locally. Closing 
 On Windows, optionally create the desktop shortcut:
 
 ```powershell
-pwsh -NoProfile -File scripts/create-shortcut.ps1
+powershell -NoProfile -File scripts/create-shortcut.ps1
 ```
 
-The shortcut opens Oura Connect without a console. It uses PowerShell 7 (`pwsh`). The normal `uv run --locked oura-connector ui` command works without that shortcut.
+The optional shortcut opens the same Oura Connect window with its console hidden. It points to this checkout, so recreate it if you move the repository. The root launcher and `uv run --locked oura-connector ui` work without the shortcut. Neither launcher starts the MCP or HTTP server; follow the relevant guide after connecting.
 
 ## Terminal login
 

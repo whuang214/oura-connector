@@ -1,7 +1,7 @@
 param([string]$Destination = [Environment]::GetFolderPath('DesktopDirectory'))
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
-$shellPath = (Get-Command pwsh.exe -ErrorAction Stop).Source
+$shellPath = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
 $scriptPath = Join-Path $PSScriptRoot 'open-oura.ps1'
 $shortcutPath = Join-Path $Destination 'Oura Connect.lnk'
 if (Test-Path -LiteralPath $shortcutPath) { throw 'Oura Connect shortcut already exists; choose another destination.' }

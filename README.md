@@ -28,6 +28,8 @@ uv sync --locked
 uv run --locked oura-connector ui
 ```
 
+On Windows, after installation, double-click **[Open Oura.cmd](Open%20Oura.cmd)** in the repository folder to open Oura Connect. Reopen it anytime to see your saved sign-in or manage the connection. A desktop shortcut is optional.
+
 1. Create your own app in the [Oura developer portal](https://developer.ouraring.com/applications). The [setup guide](docs/guides/setup.md#create-your-developer-app) explains every field.
 2. Register `http://localhost:8765/callback`, enter your app's client ID and secret in Oura Connect, and approve access in your browser.
 3. Choose MCP or HTTP below. They use the same saved sign-in.

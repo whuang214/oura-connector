@@ -22,4 +22,4 @@ Start with [setup](guides/setup.md), then choose [MCP](guides/mcp.md) or the [HT
 
 [Privacy](../PRIVACY.md) · [Terms](../TERMS.md) · [License](../LICENSE)
 
-Historical overhaul decisions and verification notes are retained in [archive](archive/README.md). They are not setup instructions. Documentation-authoring checkpoints live in adjacent `_design` folders and are not part of the user reading path.
+Historical overhaul decisions and verification notes are retained in [archive](archive/README.md). They are not setup instructions.

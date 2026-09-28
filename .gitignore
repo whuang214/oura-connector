@@ -1,4 +1,6 @@
 .venv/
+.cache/
+_design/
 .graphify/
 __pycache__/
 *.py[cod]

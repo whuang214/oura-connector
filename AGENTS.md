@@ -1,6 +1,6 @@
 # Repository guidance
 
-Oura Connector retrieves Oura data through a shared Python service with MCP and loopback HTTP adapters. Start with `docs/README.md`, `docs/development/architecture.md`, and the reference relevant to the change. `docs/archive/` is historical; `_design/` contains documentation authoring checkpoints, not runtime instructions.
+Oura Connector retrieves Oura data through a shared Python service with MCP and loopback HTTP adapters. Start with `docs/README.md`, `docs/development/architecture.md`, and the reference relevant to the change. `docs/archive/` is historical.
 
 ## Work safely
 
