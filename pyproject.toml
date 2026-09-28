@@ -41,15 +41,6 @@ Terms = "https://github.com/whuang214/oura-connector/blob/main/TERMS.md"
 [project.scripts]
 oura-connector = "oura_connector.interfaces.cli:main"
 
-[project.optional-dependencies]
-dev = [
-  "mypy>=1.16,<2",
-  "pillow>=12,<13",
-  "pytest>=9.0.3,<10",
-  "pytest-cov>=6.2,<7",
-  "ruff>=0.12,<1",
-]
-
 [build-system]
 requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
@@ -107,3 +98,12 @@ warn_unreachable = true
 [[tool.mypy.overrides]]
 module = ["ntsecuritycon", "win32api", "win32con", "win32security", "win32crypt", "win32event", "win32gui"]
 ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "mypy>=1.16,<2",
+    "pillow>=12,<13",
+    "pytest>=9.0.3,<10",
+    "pytest-cov>=6.2,<7",
+    "ruff>=0.12,<1",
+]

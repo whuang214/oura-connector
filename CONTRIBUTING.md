@@ -9,8 +9,10 @@ Use a native Python 3.11+ runtime and uv. Windows x64 with Python 3.12 is the ve
 ```powershell
 git clone https://github.com/whuang214/oura-connector.git
 cd oura-connector
-uv sync --locked --extra dev
+uv sync --locked
 ```
+
+Development tools live in the standard `dev` dependency group, which uv installs by default. Repeating `uv sync` keeps them installed; no `--extra dev` flag is needed. Use `uv sync --locked --no-dev` only when you intentionally want an environment without development tools.
 
 Read repository instructions and check Git status before editing. Do not overwrite unrelated work. Dependency updates should be deliberate, reviewed, and reflected in both `pyproject.toml` and `uv.lock`.
 

@@ -21,6 +21,7 @@ This probes today's daily sleep collection and prints status rather than health 
 
 | Symptom | What to check |
 | --- | --- |
+| `uv sync` removes pytest, Ruff, or other development tools | Update your checkout and run `uv sync --locked`. Development tools now belong to uv's default `dev` group. Older checkouts stored them in an optional extra that plain sync removed. |
 | Root launcher does not open the window | Run `uv run --locked oura-connector ui` from the checkout to see the error. Confirm `uv` is installed and `uv sync --locked` succeeds. If Windows blocks PowerShell scripts, use the uv command directly; the launcher does not change execution policy. |
 | MCP client cannot launch uv | Configure the full uv executable path and correct absolute checkout directory. |
 | MCP works in a terminal but not in the client | Check the user account and `--config` profile. Restart the client process. |
