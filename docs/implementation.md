@@ -44,3 +44,5 @@ Foundation complete: uv.lock and Python 3.12 local environment; separate TOML se
 
 
 Retrieval wave: registry covers 19 official collections; bounded streaming, retries, record lookup, offset/fingerprint continuation, date/timestamp validation, and independent collection outcomes implemented. Focused suite: 38 passed; strict mypy and Ruff pass. Date-boundary evidence: official schema accepts date/datetime but does not document inclusivity; primary reproduction https://github.com/daveremy/oura-mcp/issues/5 reports exclusive end on sleep/daily_activity/workout/session. The registry translates only those four upper bounds, with source-day filtering; mock tests verify translation, live confirmation remains pending. Next: formatting and day assembly.
+
+Day/formatting wave complete: one range fetch per resource, independent collection outcomes per day, source-day grouping, sleep record omission counts, null/zero preservation, explicit units, field selection and response cap. Focused suite: 44 passed; strict mypy and Ruff pass. Next: thin interfaces and CLI.
